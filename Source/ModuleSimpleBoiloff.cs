@@ -13,7 +13,7 @@ namespace SimpleBoiloff
         [KSPField(isPersistant = false)]
         public string FuelName;
 
-        // Rate of boiling off in %/s
+        // Rate of boiling off in %/hr
         [KSPField(isPersistant = false)]
         public float BoiloffRate = 0.025f;
 
@@ -22,7 +22,7 @@ namespace SimpleBoiloff
         public float CoolingCost = 0.0f;
 
         [KSPField(isPersistant = true)]
-        public float LastUpdateTime;
+        public double LastUpdateTime = 0;
 
         // Status string
         [KSPField(isPersistant = false, guiActive = true, guiName = "Boiloff Status")]
