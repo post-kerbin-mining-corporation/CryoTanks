@@ -13,9 +13,9 @@ namespace SimpleBoiloff
         [KSPField(isPersistant = false)]
         public string FuelName;
 
-        // Rate of boiling off u/s
+        // Rate of boiling off in %/s
         [KSPField(isPersistant = false)]
-        public float BoiloffRate = 1.0f;
+        public float BoiloffRate = 0.025f;
 
         // Cost to cool off u/s
         [KSPField(isPersistant = false)]
@@ -104,7 +104,8 @@ namespace SimpleBoiloff
         }
         protected void DoBoiloff()
         {
-          part.RequestResource(FuelName, BoiloffRate*TimeWarp.fixedDeltaTime);
+          double toBoil = (1f-BoiloffRate)*fuelAmount;
+          part.RequestResource(FuelName, toBoil*TimeWarp.fixedDeltaTime);
 
         }
 
