@@ -32,7 +32,7 @@ namespace SimpleBoiloff
         public string CoolingStatus = "N/A";
 
         private double fuelAmount = 0.0;
-        
+        private double boiloffRateSeconds = 0.0
 
         public override string GetInfo()
         {
@@ -46,8 +46,21 @@ namespace SimpleBoiloff
         {
             if (HighLogic.LoadedSceneIsFlight)
             {
+              boiloffRateSeconds = BoiloffRate/3600.0;
               // Catchup
+
+              DoCatchup();
             }
+        }
+
+        public void DoCatchup()
+        {
+          if (part.vessel.missionTime > 0.0)
+          {
+            double elapsedTime = part.vessel.missionTime - LastUpdateTime;
+            double toBoil = Math.Pow(boiloffRateSeconds,elapsedTime)*GetResourceAmount(FuelName);
+            part.RequestResource(FuelName, toBoil);
+          }
         }
 
         public void Update()
@@ -99,12 +112,12 @@ namespace SimpleBoiloff
                       CoolingStatus = String.Format("Using {0:F2} Ec/s", CoolingCost);
                     }
                   }
-                
+              LastUpdateTime = part.vessel.missionTime;
             }
         }
         protected void DoBoiloff()
         {
-          double toBoil = (1f-BoiloffRate)*fuelAmount;
+          double toBoil = boiloffRateSeconds*fuelAmount;
           part.RequestResource(FuelName, toBoil*TimeWarp.fixedDeltaTime);
 
         }
