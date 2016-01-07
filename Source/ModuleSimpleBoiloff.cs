@@ -117,8 +117,10 @@ namespace SimpleBoiloff
         }
         protected void DoBoiloff()
         {
-          double toBoil = boiloffRateSeconds*fuelAmount;
-          part.RequestResource(FuelName, toBoil*TimeWarp.fixedDeltaTime);
+          // totalDecay = ( rate in s )^number of s 
+          double toBoil = Math.Pow(boiloffRateSeconds, TimeWarp.fixedDeltaTime);
+
+          part.RequestResource(FuelName, toBoil * fuelAmount );
 
         }
 
