@@ -25,10 +25,10 @@ namespace SimpleBoiloff
         public double LastUpdateTime = 0;
 
         // Status string
-        [KSPField(isPersistant = false, guiActive = true, guiName = "Boiloff Status")]
+        [KSPField(isPersistant = false, guiActive = true, guiName = "Boiloff")]
         public string BoiloffStatus = "N/A";
 
-        [KSPField(isPersistant = false, guiActive = false, guiName = "Insulation Status")]
+        [KSPField(isPersistant = false, guiActive = false, guiName = "Insulation")]
         public string CoolingStatus = "N/A";
 
         private double fuelAmount = 0.0;
@@ -46,10 +46,10 @@ namespace SimpleBoiloff
         {
             if (HighLogic.LoadedSceneIsFlight)
             {
-              boiloffRateSeconds = BoiloffRate/3600.0;
+              boiloffRateSeconds = BoiloffRate/100.0/3600.0;
               // Catchup
 
-              DoCatchup();
+              //DoCatchup();
             }
         }
 
@@ -73,7 +73,7 @@ namespace SimpleBoiloff
             {
               foreach (BaseField fld in base.Fields)
                 {
-                    if (fld.guiName == "Insulation Status")
+                    if (fld.guiName == "Insulation")
                         fld.guiActive = true;
                 }
             }
@@ -81,7 +81,7 @@ namespace SimpleBoiloff
             {
                 foreach (BaseField fld in base.Fields)
                 {
-                    if (fld.guiName == "BoiloffStatus")
+                    if (fld.guiName == "Boiloff")
                         fld.guiActive = false;
                 }
                 
@@ -97,8 +97,8 @@ namespace SimpleBoiloff
                 // If we have no fuel, no need to do any calculations
                 if (fuelAmount == 0.0)
                 {
-                  BoiloffStatus = "No Fuel Remaining";
-                  CoolingStatus = "No Cooling Required";
+                  BoiloffStatus = "No Fuel";
+                  CoolingStatus = "No Fuel";
                   return;
                 }
 
@@ -112,7 +112,7 @@ namespace SimpleBoiloff
                 else
                 {
                     double req = part.RequestResource("ElectricCharge", CoolingCost * TimeWarp.fixedDeltaTime);
-                    if (req < (double)CoolingCost)
+                    if (req < (double)(CoolingCost * TimeWarp.fixedDeltaTime))
                     {
                       DoBoiloff();
                       BoiloffStatus = String.Format("Losing {0:F2} u/s", boiloffRateSeconds);
@@ -128,9 +128,10 @@ namespace SimpleBoiloff
         }
         protected void DoBoiloff()
         {
-			double toBoil = Math.Pow(boiloffRateSeconds, TimeWarp.fixedDeltaTime);
+            // 0.025/100/3600
+			double toBoil = Math.Pow(1.0-boiloffRateSeconds, TimeWarp.fixedDeltaTime);
 
-			part.RequestResource(FuelName, toBoil * fuelAmount );
+			part.RequestResource(FuelName, (1.0-toBoil) * fuelAmount );
         }	
 
         protected double GetResourceAmount(string nm)
