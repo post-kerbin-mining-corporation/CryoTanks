@@ -3,3 +3,8 @@ G:\KSP Modding\repositories\SimpleBoiloff\GameData\SimpleBoiloff\Plugins\SimpleB
 G:\KSP Modding\repositories\SimpleBoiloff\GameData\SimpleBoiloff\Plugins\SimpleBoiloff.pdb
 G:\KSP Modding\repositories\SimpleBoiloff\Source\obj\Debug\SimpleBoiloff.dll
 G:\KSP Modding\repositories\SimpleBoiloff\Source\obj\Debug\SimpleBoiloff.pdb
+G:\KSP Modding\repositories\CryoTanks\GameData\CryoTanks\Plugins\SimpleBoiloff.dll
+G:\KSP Modding\repositories\CryoTanks\GameData\CryoTanks\Plugins\SimpleBoiloff.pdb
+G:\KSP Modding\repositories\CryoTanks\Source\obj\Debug\SimpleBoiloff.csprojResolveAssemblyReference.cache
+G:\KSP Modding\repositories\CryoTanks\Source\obj\Debug\SimpleBoiloff.dll
+G:\KSP Modding\repositories\CryoTanks\Source\obj\Debug\SimpleBoiloff.pdb

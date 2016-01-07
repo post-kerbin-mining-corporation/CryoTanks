@@ -32,13 +32,13 @@ namespace SimpleBoiloff
         public string CoolingStatus = "N/A";
 
         private double fuelAmount = 0.0;
-        private double boiloffRateSeconds = 0.0
+        private double boiloffRateSeconds = 0.0;
 
         public override string GetInfo()
         {
-          string msg = String.Format("Loss Rate: {0:F4} {0}/s", BoiloffRate, FuelName);
+          string msg = String.Format("Loss Rate: {0:F4} {1}/s", BoiloffRate, FuelName);
           if (CoolingCost > 0.0f)
-            msg += String.Format("Cooling Cost: {0:F2} Ec/s", CoolingCost);
+            msg += String.Format("\nCooling Cost: {0:F2} Ec/s", CoolingCost);
           return msg;
         }
 
@@ -67,6 +67,7 @@ namespace SimpleBoiloff
         {
           if (HighLogic.LoadedSceneIsFlight)
           {
+        
             // Show the insulation status field if there is a cooling cost
             if (CoolingCost > 0f)
             {
@@ -76,9 +77,19 @@ namespace SimpleBoiloff
                         fld.guiActive = true;
                 }
             }
+            if (fuelAmount == 0.0)
+            {
+                foreach (BaseField fld in base.Fields)
+                {
+                    if (fld.guiName == "BoiloffStatus")
+                        fld.guiActive = false;
+                }
+                
+            }
+
           }
         }
-        public override void OnFixedUpdate()
+        protected void FixedUpdate()
         {
             if (HighLogic.LoadedSceneIsFlight)
             {
@@ -104,7 +115,7 @@ namespace SimpleBoiloff
                     if (req < (double)CoolingCost)
                     {
                       DoBoiloff();
-                      BoiloffStatus = String.Format("Losing {0:F2} u/s", BoiloffRate);
+                      BoiloffStatus = String.Format("Losing {0:F2} u/s", boiloffRateSeconds);
                       CoolingStatus = "ElectricCharge deprived!";
                     } else
                     {
@@ -117,10 +128,6 @@ namespace SimpleBoiloff
         }
         protected void DoBoiloff()
         {
-          // totalDecay = ( rate in s )^number of s 
-          double toBoil = Math.Pow(boiloffRateSeconds, TimeWarp.fixedDeltaTime);
-
-          part.RequestResource(FuelName, toBoil * fuelAmount );
 
         }
 
