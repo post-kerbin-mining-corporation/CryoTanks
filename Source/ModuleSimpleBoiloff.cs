@@ -128,8 +128,10 @@ namespace SimpleBoiloff
         }
         protected void DoBoiloff()
         {
+			double toBoil = Math.Pow(boiloffRateSeconds, TimeWarp.fixedDeltaTime);
 
-        }
+			part.RequestResource(FuelName, toBoil * fuelAmount );
+        }	
 
         protected double GetResourceAmount(string nm)
        {
