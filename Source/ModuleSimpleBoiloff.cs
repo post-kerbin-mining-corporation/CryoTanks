@@ -36,7 +36,7 @@ namespace SimpleBoiloff
 
         public override string GetInfo()
         {
-          string msg = String.Format("Loss Rate: {0:F4} {1}/s", BoiloffRate, FuelName);
+          string msg = String.Format("Loss Rate: {0:F4}% {1}/hr", BoiloffRate, FuelName);
           if (CoolingCost > 0.0f)
             msg += String.Format("\nCooling Cost: {0:F2} Ec/s", CoolingCost);
           return msg;
