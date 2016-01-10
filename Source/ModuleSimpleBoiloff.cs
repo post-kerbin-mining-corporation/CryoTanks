@@ -151,14 +151,14 @@ namespace SimpleBoiloff
                 if (CoolingCost == 0f)
                 {
                   DoBoiloff();
-                  BoiloffStatus = String.Format("Losing {0:F2} u/s", boiled);
+                  BoiloffStatus = String.Format("Losing {0:F3} u/s", boiled);
                 }
                 // else check for available power
                 else
                 {
                     if (CoolingEnabled)
                     {
-                      double req = part.RequestResource("ElectricCharge", CoolingCost * TimeWarp.fixedDeltaTime);
+                      double req = part.RequestResource("ElectricCharge", coolingCost * TimeWarp.fixedDeltaTime);
                       if (req < (double)(coolingCost * TimeWarp.fixedDeltaTime))
                       {
                         DoBoiloff();
@@ -166,15 +166,15 @@ namespace SimpleBoiloff
                         CoolingStatus = "ElectricCharge deprived!";
                       } else
                       {
-                        BoiloffStatus = String.Format("Insulated", BoiloffRate);
+                        BoiloffStatus = String.Format("Insulated");
                         CoolingStatus = String.Format("Using {0:F2} Ec/s", coolingCost);
                       }
                     } 
                     else
                     {
-                      DoBoiloff();
-                      BoiloffStatus = String.Format("Losing {0:F3} u/s", boiled);
-                        CoolingStatus = "Insulation Disabled";
+                        DoBoiloff();
+                        BoiloffStatus = String.Format("Losing {0:F3} u/s", boiled);
+                        CoolingStatus = "Disabled";
                     }
                   }
               LastUpdateTime = part.vessel.missionTime;
