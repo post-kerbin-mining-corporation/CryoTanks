@@ -68,9 +68,9 @@ namespace SimpleBoiloff
 
         public override string GetInfo()
         {
-          string msg = String.Format("Loss Rate: {0:F4}% {1}/hr", BoiloffRate, FuelName);
+          string msg = String.Format("Loss Rate: {0:F2}% {1}/hr", BoiloffRate, FuelName);
           if (CoolingCost > 0.0f)
-            msg += String.Format("\nCooling Cost: {0:F2} Ec/s", CoolingCost);
+              msg += String.Format("\nCooling Cost: {0:F2} EC/s per 1000 LH2", CoolingCost);
           return msg;
         }
 
@@ -96,10 +96,13 @@ namespace SimpleBoiloff
         {
           if (part.vessel.missionTime > 0.0)
           {
-            double elapsedTime = part.vessel.missionTime - LastUpdateTime;
-        
-            double toBoil = Math.Pow(1.0 - boiloffRateSeconds, elapsedTime);
-            part.RequestResource(FuelName, (1.0 - toBoil) * fuelAmount );
+              if (part.RequestResource("ElectricCharge", coolingCost * TimeWarp.fixedDeltaTime) < coolingCost * TimeWarp.fixedDeltaTime)
+              {
+                  double elapsedTime = part.vessel.missionTime - LastUpdateTime;
+
+                  double toBoil = Math.Pow(1.0 - boiloffRateSeconds, elapsedTime);
+                  part.RequestResource(FuelName, (1.0 - toBoil) * fuelAmount,ResourceFlowMode.NO_FLOW);
+              }
           }
         }
 
@@ -116,10 +119,11 @@ namespace SimpleBoiloff
                     if (fld.guiName == "Insulation")
                         fld.guiActive = true;
                 }
-                if (Events["Enable"].active == Enabled || Events["Disable"].active != Enabled)
+
+              if (Events["Enable"].active == CoolingEnabled || Events["Disable"].active != CoolingEnabled)
                 {
-                    Events["Disable"].active = Enabled;
-                    Events["Enable"].active = !Enabled;
+                    Events["Disable"].active = CoolingEnabled;
+                    Events["Enable"].active = !CoolingEnabled;
                }
             }
             if (fuelAmount == 0.0)
@@ -151,7 +155,7 @@ namespace SimpleBoiloff
                 if (CoolingCost == 0f)
                 {
                   DoBoiloff();
-                  BoiloffStatus = String.Format("Losing {0:F3} u/s", boiled);
+                  BoiloffStatus = FormatRate(boiloffRateSeconds* fuelAmount);
                 }
                 // else check for available power
                 else
@@ -159,40 +163,65 @@ namespace SimpleBoiloff
                     if (CoolingEnabled)
                     {
                       double req = part.RequestResource("ElectricCharge", coolingCost * TimeWarp.fixedDeltaTime);
-                      if (req < (double)(coolingCost * TimeWarp.fixedDeltaTime))
+                      if (req > 0d)
                       {
-                        DoBoiloff();
-                        BoiloffStatus = String.Format("Losing {0:F3} u/s", boiled);
-                        CoolingStatus = "ElectricCharge deprived!";
+                          BoiloffStatus = String.Format("Insulated");
+                          CoolingStatus = String.Format("Using {0:F2} Ec/s", coolingCost);
+                        
                       } else
                       {
-                        BoiloffStatus = String.Format("Insulated");
-                        CoolingStatus = String.Format("Using {0:F2} Ec/s", coolingCost);
+                          DoBoiloff();
+                          BoiloffStatus = FormatRate(boiloffRateSeconds * fuelAmount);
+                          CoolingStatus = "ElectricCharge deprived!";
                       }
                     } 
                     else
                     {
                         DoBoiloff();
-                        BoiloffStatus = String.Format("Losing {0:F3} u/s", boiled);
+                        BoiloffStatus = FormatRate(boiloffRateSeconds * fuelAmount);
                         CoolingStatus = "Disabled";
                     }
                   }
-              LastUpdateTime = part.vessel.missionTime;
+                if (part.vessel.missionTime > 0.0)
+                {
+                    LastUpdateTime = part.vessel.missionTime;
+                }
             }
         }
         protected void DoBoiloff()
         {
             // 0.025/100/3600
-      			double toBoil = Math.Pow(1.0-boiloffRateSeconds, TimeWarp.fixedDeltaTime);
+      		double toBoil = Math.Pow(1.0-boiloffRateSeconds, TimeWarp.fixedDeltaTime);
 
-      			boiled = part.RequestResource(FuelName, (1.0-toBoil) * fuelAmount );
+      		boiled = part.RequestResource(FuelName, (1.0-toBoil) * fuelAmount,ResourceFlowMode.NO_FLOW );
         }	
 
         private double boiled = 0d;
 
+        protected string FormatRate(double rate)
+        {
+            double adjRate = rate;
+            string interval = "s";
+            if (adjRate < 0.01)
+            {
+                adjRate = adjRate*60.0;
+                interval = "min";
+            }
+            if (adjRate < 0.01)
+            {
+                adjRate = adjRate * 60.0;
+                interval = "hr";
+            }
+            return String.Format("Losing {0:F2} u/{1}", adjRate, interval);          
+        }
+
         protected double GetResourceAmount(string nm)
        {
-           return this.part.Resources.Get(PartResourceLibrary.Instance.GetDefinition(nm).id).amount;
+           PartResource res = this.part.Resources.Get(PartResourceLibrary.Instance.GetDefinition(nm).id);
+           if (res)
+               return res.amount;
+           else
+               return 0d;
        }
 
     }
