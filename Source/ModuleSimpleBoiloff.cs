@@ -154,7 +154,7 @@ namespace SimpleBoiloff
                 // If the cooling cost is zero, we must boil off
                 if (CoolingCost == 0f)
                 {
-                  DoBoiloff();
+                  DoBoiloff(1d);
                   BoiloffStatus = FormatRate(boiloffRateSeconds* fuelAmount);
                 }
                 // else check for available power
@@ -163,21 +163,30 @@ namespace SimpleBoiloff
                     if (CoolingEnabled)
                     {
                       double req = part.RequestResource("ElectricCharge", coolingCost * TimeWarp.fixedDeltaTime);
-                      if (req > 0d)
+                      // Fully cooled
+                      if (req >= coolingCost * TimeWarp.fixedDeltaTime)
                       {
                           BoiloffStatus = String.Format("Insulated");
                           CoolingStatus = String.Format("Using {0:F2} Ec/s", coolingCost);
-                        
-                      } else
+                      
+                      // partially cooled
+                      } else if (req >= 0d)
                       {
-                          DoBoiloff();
+                          DoBoiloff(req/(coolingCost*TimeWarp.fixedDeltaTime));
                           BoiloffStatus = FormatRate(boiloffRateSeconds * fuelAmount);
-                          CoolingStatus = "ElectricCharge deprived!";
+                          CoolingStatus = "Partial Cooling!";
+                      }
+                      // Uncooled
+                      else
+                      {
+                          DoBoiloff(1d);
+                          BoiloffStatus = FormatRate(boiloffRateSeconds * fuelAmount);
+                          CoolingStatus = "No Cooling!";
                       }
                     } 
                     else
                     {
-                        DoBoiloff();
+                        DoBoiloff(1d);
                         BoiloffStatus = FormatRate(boiloffRateSeconds * fuelAmount);
                         CoolingStatus = "Disabled";
                     }
@@ -188,10 +197,10 @@ namespace SimpleBoiloff
                 }
             }
         }
-        protected void DoBoiloff()
+        protected void DoBoiloff(double scale)
         {
             // 0.025/100/3600
-      		double toBoil = Math.Pow(1.0-boiloffRateSeconds, TimeWarp.fixedDeltaTime);
+      		double toBoil = Math.Pow(1.0-boiloffRateSeconds, TimeWarp.fixedDeltaTime)*scale;
 
       		boiled = part.RequestResource(FuelName, (1.0-toBoil) * fuelAmount,ResourceFlowMode.NO_FLOW );
         }	
