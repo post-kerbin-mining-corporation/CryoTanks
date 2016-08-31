@@ -23,7 +23,7 @@ namespace SimpleBoiloff
 
         // Last timestamp that boiloff occurred
         [KSPField(isPersistant = true)]
-        public double LastUpdateTime = 0;        
+        public double LastUpdateTime = 0;
 
         // Whether active tank refrigeration is occurring
         [KSPField(isPersistant = true)]
@@ -114,7 +114,7 @@ namespace SimpleBoiloff
         {
           if (HighLogic.LoadedSceneIsFlight)
           {
-        
+
             // Show the insulation status field if there is a cooling cost
             if (CoolingCost > 0f)
             {
@@ -137,7 +137,7 @@ namespace SimpleBoiloff
                     if (fld.guiName == "Boiloff")
                         fld.guiActive = false;
                 }
-                
+
             }
 
           }
@@ -167,7 +167,7 @@ namespace SimpleBoiloff
                     if (CoolingEnabled)
                     {
                         ConsumeCharge();
-                    } 
+                    }
                     else
                     {
                         BoiloffOccuring = true;
@@ -208,6 +208,7 @@ namespace SimpleBoiloff
                 double tolerance = 0.0001;
                 if (req >= chargeRequest - tolerance)
                 {
+                    BoiloffOccuring = false;
                     BoiloffStatus = String.Format("Insulated");
                     CoolingStatus = String.Format("Using {0:F2} Ec/s", coolingCost);
                 }
@@ -219,7 +220,7 @@ namespace SimpleBoiloff
                 }
             }
 
-            
+
         }
         protected void DoBoiloff(double scale)
         {
@@ -227,7 +228,7 @@ namespace SimpleBoiloff
       		double toBoil = Math.Pow(1.0-boiloffRateSeconds, TimeWarp.fixedDeltaTime)*scale;
 
       		boiled = part.RequestResource(FuelName, (1.0-toBoil) * fuelAmount,ResourceFlowMode.NO_FLOW );
-        }	
+        }
 
         private double boiled = 0d;
 
@@ -245,7 +246,7 @@ namespace SimpleBoiloff
                 adjRate = adjRate * 60.0;
                 interval = "hr";
             }
-            return String.Format("Losing {0:F2} u/{1}", adjRate, interval);          
+            return String.Format("Losing {0:F2} u/{1}", adjRate, interval);
         }
 
         protected double GetResourceAmount(string nm)
