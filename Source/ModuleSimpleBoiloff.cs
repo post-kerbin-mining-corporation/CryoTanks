@@ -23,14 +23,18 @@ namespace SimpleBoiloff
 
         // Last timestamp that boiloff occurred
         [KSPField(isPersistant = true)]
-        public double LastUpdateTime = 0;        
+        public double LastUpdateTime = 0;
 
         // Whether active tank refrigeration is occurring
         [KSPField(isPersistant = true)]
         public bool CoolingEnabled = true;
 
+        [KSPField(isPersistant = true)]
+        public bool BoiloffOccuring = false;
+
         // PRIVATE
         private double fuelAmount = 0.0;
+        private double maxFuelAmount = 0.0;
         private double coolingCost = 0.0;
         private double boiloffRateSeconds = 0.0;
 
@@ -54,13 +58,13 @@ namespace SimpleBoiloff
         }
 
         // ACTIONS
-        [KSPAction("Enable Charging")]
+        [KSPAction("Enable Cooling")]
         public void EnableAction(KSPActionParam param) { Enable(); }
 
-        [KSPAction("Disable Charging")]
+        [KSPAction("Disable Cooling")]
         public void DisableAction(KSPActionParam param) { Disable(); }
 
-        [KSPAction("Toggle Charging")]
+        [KSPAction("Toggle Cooling")]
         public void ToggleAction(KSPActionParam param)
         {
             CoolingEnabled = !CoolingEnabled;
@@ -74,16 +78,16 @@ namespace SimpleBoiloff
           return msg;
         }
 
-        public override void OnStart(PartModule.StartState state)
+        public void Start()
         {
             if (HighLogic.LoadedSceneIsFlight)
             {
-              fuelAmount = GetResourceAmount(FuelName);
+              maxFuelAmount = GetMaxResourceAmount(FuelName);
 
               boiloffRateSeconds = BoiloffRate/100.0/3600.0;
               if (CoolingCost > 0.0)
               {
-                coolingCost = fuelAmount/1000.0 * CoolingCost;
+                coolingCost = maxFuelAmount/1000.0 * CoolingCost;
                 Events["Disable"].guiActive = true;
                 Events["Enable"].guiActive = true;
               }
@@ -110,7 +114,7 @@ namespace SimpleBoiloff
         {
           if (HighLogic.LoadedSceneIsFlight)
           {
-        
+
             // Show the insulation status field if there is a cooling cost
             if (CoolingCost > 0f)
             {
@@ -133,7 +137,7 @@ namespace SimpleBoiloff
                     if (fld.guiName == "Boiloff")
                         fld.guiActive = false;
                 }
-                
+
             }
 
           }
@@ -146,55 +150,85 @@ namespace SimpleBoiloff
                 // If we have no fuel, no need to do any calculations
                 if (fuelAmount == 0.0)
                 {
-                  BoiloffStatus = "No Fuel";
-                  CoolingStatus = "No Fuel";
-                  return;
+                    BoiloffStatus = "No Fuel";
+                    CoolingStatus = "No Fuel";
+                    return;
                 }
 
                 // If the cooling cost is zero, we must boil off
-                if (CoolingCost == 0f)
+                if (coolingCost == 0f)
                 {
-                  DoBoiloff();
-                  BoiloffStatus = FormatRate(boiloffRateSeconds* fuelAmount);
+                    BoiloffOccuring = true;
+                    BoiloffStatus = FormatRate(boiloffRateSeconds* fuelAmount);
                 }
                 // else check for available power
                 else
                 {
                     if (CoolingEnabled)
                     {
-                      double req = part.RequestResource("ElectricCharge", coolingCost * TimeWarp.fixedDeltaTime);
-                      if (req > 0d)
-                      {
-                          BoiloffStatus = String.Format("Insulated");
-                          CoolingStatus = String.Format("Using {0:F2} Ec/s", coolingCost);
-                        
-                      } else
-                      {
-                          DoBoiloff();
-                          BoiloffStatus = FormatRate(boiloffRateSeconds * fuelAmount);
-                          CoolingStatus = "ElectricCharge deprived!";
-                      }
-                    } 
+                        ConsumeCharge();
+                    }
                     else
                     {
-                        DoBoiloff();
+                        BoiloffOccuring = true;
                         BoiloffStatus = FormatRate(boiloffRateSeconds * fuelAmount);
                         CoolingStatus = "Disabled";
                     }
                   }
+
+                if (BoiloffOccuring)
+                {
+                    DoBoiloff(1d);
+                }
                 if (part.vessel.missionTime > 0.0)
                 {
                     LastUpdateTime = part.vessel.missionTime;
                 }
             }
         }
-        protected void DoBoiloff()
+        protected void ConsumeCharge()
+        {
+            if (TimeWarp.CurrentRate >= 10000f)
+            {
+                if (BoiloffOccuring)
+                {
+                    double Ec = GetResourceAmount("ElectricCharge");
+                    double req = part.RequestResource("ElectricCharge", Ec);
+                }
+            }
+            else
+            {
+                float clampedDeltaTime = Mathf.Clamp(TimeWarp.fixedDeltaTime, 0f, 10000f * 0.02f);
+
+                double chargeRequest = coolingCost * clampedDeltaTime;
+
+                double req = part.RequestResource("ElectricCharge", chargeRequest);
+                //Debug.Log(req.ToString() + " rec, wanted "+ chargeRequest.ToString());
+                // Fully cooled
+                double tolerance = 0.0001;
+                if (req >= chargeRequest - tolerance)
+                {
+                    BoiloffOccuring = false;
+                    BoiloffStatus = String.Format("Insulated");
+                    CoolingStatus = String.Format("Using {0:F2} Ec/s", coolingCost);
+                }
+                else
+                {
+                    BoiloffOccuring = true;
+                    BoiloffStatus = FormatRate(boiloffRateSeconds * fuelAmount);
+                    CoolingStatus = "Uncooled!";
+                }
+            }
+
+
+        }
+        protected void DoBoiloff(double scale)
         {
             // 0.025/100/3600
-      		double toBoil = Math.Pow(1.0-boiloffRateSeconds, TimeWarp.fixedDeltaTime);
+      		double toBoil = Math.Pow(1.0-boiloffRateSeconds, TimeWarp.fixedDeltaTime)*scale;
 
       		boiled = part.RequestResource(FuelName, (1.0-toBoil) * fuelAmount,ResourceFlowMode.NO_FLOW );
-        }	
+        }
 
         private double boiled = 0d;
 
@@ -212,7 +246,7 @@ namespace SimpleBoiloff
                 adjRate = adjRate * 60.0;
                 interval = "hr";
             }
-            return String.Format("Losing {0:F2} u/{1}", adjRate, interval);          
+            return String.Format("Losing {0:F2} u/{1}", adjRate, interval);
         }
 
         protected double GetResourceAmount(string nm)
@@ -223,6 +257,14 @@ namespace SimpleBoiloff
            else
                return 0d;
        }
+        protected double GetMaxResourceAmount(string nm)
+        {
+            PartResource res = this.part.Resources.Get(PartResourceLibrary.Instance.GetDefinition(nm).id);
+            if (res)
+                return res.maxAmount;
+            else
+                return 0d;
+        }
 
     }
 }
