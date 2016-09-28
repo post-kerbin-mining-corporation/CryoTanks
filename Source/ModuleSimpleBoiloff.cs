@@ -183,7 +183,7 @@ namespace SimpleBoiloff
             }
         }
         // Returns the cooling cost if the system is enabled
-        public float GetCoolingCost()
+        public double GetCoolingCost()
         {
           if (CoolingEnabled)
           {
@@ -271,20 +271,16 @@ namespace SimpleBoiloff
         }
 
         protected double GetResourceAmount(string nm)
-       {
-           PartResource res = this.part.Resources.Get(PartResourceLibrary.Instance.GetDefinition(nm).id);
-           if (res)
-               return res.amount;
-           else
-               return 0d;
-       }
+        {
+
+
+            PartResource res = this.part.Resources.Get(PartResourceLibrary.Instance.GetDefinition(nm).id);
+            return res.amount;
+        }
         protected double GetMaxResourceAmount(string nm)
         {
             PartResource res = this.part.Resources.Get(PartResourceLibrary.Instance.GetDefinition(nm).id);
-            if (res)
-                return res.maxAmount;
-            else
-                return 0d;
+            return res.maxAmount;
         }
 
     }

@@ -10,30 +10,28 @@ namespace SimpleBoiloff
   public class BoiloffController : VesselModule
   {
 
-        float timeWarpLimit = 100f;
-        List<ModuleCryoTank> cryoTanks;
-        Dictionary<string,PartModule> powerProducers;
-        Dictionary<string,PartModule> powerConsumers;
+        float timeWarpLimit = 1000f;
+        List<ModuleCryoTank> cryoTanks = new List<ModuleCryoTank>();
+        Dictionary<string,PartModule> powerProducers = new Dictionary<string,PartModule>();
+        Dictionary<string, PartModule> powerConsumers = new Dictionary<string, PartModule>();
 
         Vessel vessel;
-
+        bool dataReady = false;
         int partCount = -1;
 
-        public void Start()
+        protected override void  OnStart()
         {
+ 	        base.OnStart();
             vessel = GetComponent<Vessel>();
-
-            ullageSets = new List<UllageSet>();
-            tanks = new List<Tanks.ModuleFuelTanks>();
-
             partCount = vessel.parts.Count;
 
-            Reset();
+            GetVesselElectricalData();
         }
+        
 
         void FixedUpdate()
         {
-          if (HighLogic.LoadedSceneIsFlight)
+          if (HighLogic.LoadedSceneIsFlight && dataReady)
           {
             if (TimeWarp.CurrentRate < timeWarpLimit)
             {
@@ -57,6 +55,7 @@ namespace SimpleBoiloff
         {
           double production = DetermineShipPowerProduction();
           double consumption = DetermineShipPowerConsumption();
+
           double boiloffConsumption = DetermineBoiloffConsumption();
 
           AllocatePower(production-consumption);
@@ -65,26 +64,27 @@ namespace SimpleBoiloff
 
         protected void AllocatePower(double availablePower)
         {
-          usedPower = 0d;
+          double usedPower = 0d;
           for (int i = 0; i< cryoTanks.Count;i++)
           {
               if (usedPower <= availablePower)
               {
-                usedPower += cryoTanks[i].SetBoiloffState(false);
+                usedPower += cryoTanks[i].SetBoiloffState(true);
               } else
               {
-                usedPower += cryoTanks[i].SetBoiloffState(true);
+                usedPower += cryoTanks[i].SetBoiloffState(false);
               }
           }
         }
 
-        protected double DetermineBoiloffConsumption();
+        protected double DetermineBoiloffConsumption()
         {
           double totalConsumption = 0d;
-          for (int i = 0; i< cryoTanks.Count;i++)
+          for (int i = 0; i < cryoTanks.Count;i++)
           {
-            totalConsumption += (double)cryoTanks.GetCoolingCost();
+            totalConsumption += cryoTanks[i].GetCoolingCost();
           }
+          return totalConsumption;
         }
 
         // TODO: implement me!
@@ -137,8 +137,7 @@ namespace SimpleBoiloff
             case "ModuleResourceConverter":
               production = GetModuleResourceConverterProduction(pm);
               break;
-            case default:
-                break;
+          
           }
           return production;
         }
@@ -150,9 +149,11 @@ namespace SimpleBoiloff
           ModuleGenerator gen = (ModuleGenerator)pm;
           if (gen == null || !gen.generatorIsActive)
             return 0d;
-          for (int i = 0;i < gen.inputList.Count;i++)
-            if (gen.outputList[i].name == "ElectricCharge")
-                return (double)gen.efficiency*inputList.rate;
+          for (int i = 0; i < gen.resHandler.outputResources.Count; i++)
+              if (gen.resHandler.outputResources[i].name == "ElectricCharge")
+                  return (double)gen.efficiency * gen.resHandler.outputResources[i].rate;
+
+          return 0d;
 
         }
         //
@@ -186,37 +187,44 @@ namespace SimpleBoiloff
         protected void GetVesselElectricalData()
         {
           cryoTanks.Clear();
-          powerProducers.Clear();
+           powerProducers.Clear();
           for (int i = partCount - 1; i >= 0; --i)
           {
               Part part = vessel.Parts[i];
+
+              ModuleCryoTank tank =  part.GetComponent<ModuleCryoTank>();
+              if (tank != null)
+                  cryoTanks.Add(tank);
               for (int j = part.Modules.Count - 1; j >= 0; --j)
               {
+                  
                   PartModule m = part.Modules[j];
                   // Add all power producers
                   // Stock
-                  TryAddModule("ModuleGenerator", m, powerProducers, false);
-                  TryAddModule("ModuleDeployableSolarPanel", m, powerProducers);
-                  TryAddModule("ModuleResourceConverter", m, powerProducers, false);
+                  TryAddModule("ModuleGenerator", m, ref powerProducers, false);
+                  TryAddModule("ModuleDeployableSolarPanel", m, ref powerProducers);
+                  TryAddModule("ModuleResourceConverter", m, ref powerProducers, false);
                   // NFT
-                  TryAddModule("FissionGenerator", m, powerProducers);
-                  TryAddModule("ModuleRadioisotopeGenerator", m, powerProducers);
-                  TryAddModule("ModuleCurvedSolarPanel", m, powerProducers);
+                  TryAddModule("FissionGenerator", m, ref powerProducers);
+                  TryAddModule("ModuleRadioisotopeGenerator", m, ref powerProducers);
+                  TryAddModule("ModuleCurvedSolarPanel", m, ref powerProducers);
 
                   // Add all power consumers
                   // Stock
-                  TryAddModule("ModuleGenerator", m, powerConsumers, true);
-                  TryAddModule("ModuleResourceConverter", m, powerConsumers, true);
-                  TryAddModule("ModuleResourceHarvester", m, powerConsumers, true);
-
+                  TryAddModule("ModuleGenerator", m, ref powerConsumers, true);
+                  TryAddModule("ModuleResourceConverter", m, ref powerConsumers, true);
+                  TryAddModule("ModuleResourceHarvester", m, ref powerConsumers, true);
               }
             }
+          Debug.Log(String.Format("CryoTanks: {0} cryo tanks detected", cryoTanks.Count));
+          dataReady = true;
         }
         protected void TryAddModule(string moduleName, PartModule pm, ref Dictionary<string,PartModule> dict)
         {
           if (pm.moduleName == moduleName)
           {
             dict.Add(moduleName, pm);
+            Debug.Log(String.Format("CryoTanks: {0} detected and added",moduleName));
           }
         }
         protected void TryAddModule(string moduleName, PartModule pm, ref Dictionary<string,PartModule> dict, bool inputs)
@@ -245,19 +253,26 @@ namespace SimpleBoiloff
               ModuleGenerator gen = (ModuleGenerator)pm;
               if (inputs)
               {
-                for (int i = 0;i < gen.inputList.Count;i++)
-                  if (gen.inputList[i].name == "ElectricCharge")
-                      valid = true;
+                  for (int i = 0; i < gen.resHandler.inputResources.Count; i++)
+                      if (gen.resHandler.inputResources[i].name == "ElectricCharge")
+                      {
+                          valid = true;
+                      }
               } else
               {
-                for (int i = 0;i < gen.outputList.Count;i++)
-                  if (gen.inputList[i].name == "ElectricCharge")
-                      valid = true;
+                  for (int i = 0; i < gen.resHandler.outputResources.Count; i++)
+                      if (gen.resHandler.outputResources[i].name == "ElectricCharge")
+                      {
+                          valid = true;
+                      }
               }
             }
           }
           if (valid)
-            dict.Add(moduleName, pm);
+          {
+              dict.Add(moduleName, pm);
+              Debug.Log(String.Format("CryoTanks: {0} detected and added", moduleName));
+          }
         }
 
   }
