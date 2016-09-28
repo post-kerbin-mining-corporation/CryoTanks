@@ -164,11 +164,7 @@ namespace SimpleBoiloff
                 // else check for available power
                 else
                 {
-                    if (CoolingEnabled)
-                    {
-                        ConsumeCharge();
-                    }
-                    else
+                    if (!CoolingEnabled)
                     {
                         BoiloffOccuring = true;
                         BoiloffStatus = FormatRate(boiloffRateSeconds * fuelAmount);
@@ -186,39 +182,65 @@ namespace SimpleBoiloff
                 }
             }
         }
-        protected void ConsumeCharge()
+        // Returns the cooling cost if the system is enabled
+        public float GetCoolingCost()
         {
-            if (TimeWarp.CurrentRate >= 10000f)
+          if (CoolingEnabled)
+          {
+            return coolingCost;
+          }
+          return 0f;
+        }
+
+        public double SetBoiloffState(bool state)
+        {
+          if (CoolingEnabled && coolingCost > 0f)
+          {
+            if (state)
             {
-                if (BoiloffOccuring)
-                {
-                    double Ec = GetResourceAmount("ElectricCharge");
-                    double req = part.RequestResource("ElectricCharge", Ec);
-                }
+              BoiloffOccuring = true;
+              BoiloffStatus = FormatRate(boiloffRateSeconds * fuelAmount);
+              CoolingStatus = "Uncooled!";
+            } else
+            {
+
+              BoiloffOccuring = false;
+              BoiloffStatus = String.Format("Insulated");
+              CoolingStatus = String.Format("Using {0:F2} Ec/s", coolingCost);
+            }
+            return (double)coolingCost;
+        }
+        return 0d;
+
+
+        }
+
+        public void ConsumeCharge()
+        {
+          if (CoolingEnabled && coolingCost > 0f)
+          {
+            float clampedDeltaTime = Mathf.Clamp(TimeWarp.fixedDeltaTime, 0f, 10000f * 0.02f);
+
+            double chargeRequest = coolingCost * clampedDeltaTime;
+
+            double req = part.RequestResource("ElectricCharge", chargeRequest);
+            //Debug.Log(req.ToString() + " rec, wanted "+ chargeRequest.ToString());
+            // Fully cooled
+            double tolerance = 0.0001;
+            if (req >= chargeRequest - tolerance)
+            {
+                BoiloffOccuring = false;
+                BoiloffStatus = String.Format("Insulated");
+                CoolingStatus = String.Format("Using {0:F2} Ec/s", coolingCost);
             }
             else
             {
-                float clampedDeltaTime = Mathf.Clamp(TimeWarp.fixedDeltaTime, 0f, 10000f * 0.02f);
-
-                double chargeRequest = coolingCost * clampedDeltaTime;
-
-                double req = part.RequestResource("ElectricCharge", chargeRequest);
-                //Debug.Log(req.ToString() + " rec, wanted "+ chargeRequest.ToString());
-                // Fully cooled
-                double tolerance = 0.0001;
-                if (req >= chargeRequest - tolerance)
-                {
-                    BoiloffOccuring = false;
-                    BoiloffStatus = String.Format("Insulated");
-                    CoolingStatus = String.Format("Using {0:F2} Ec/s", coolingCost);
-                }
-                else
-                {
-                    BoiloffOccuring = true;
-                    BoiloffStatus = FormatRate(boiloffRateSeconds * fuelAmount);
-                    CoolingStatus = "Uncooled!";
-                }
+                BoiloffOccuring = true;
+                BoiloffStatus = FormatRate(boiloffRateSeconds * fuelAmount);
+                CoolingStatus = "Uncooled!";
             }
+          }
+
 
 
         }
@@ -226,7 +248,6 @@ namespace SimpleBoiloff
         {
             // 0.025/100/3600
       		double toBoil = Math.Pow(1.0-boiloffRateSeconds, TimeWarp.fixedDeltaTime)*scale;
-
       		boiled = part.RequestResource(FuelName, (1.0-toBoil) * fuelAmount,ResourceFlowMode.NO_FLOW );
         }
 
