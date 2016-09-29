@@ -12,8 +12,8 @@ namespace SimpleBoiloff
 
         float timeWarpLimit = 1000f;
         List<ModuleCryoTank> cryoTanks = new List<ModuleCryoTank>();
-        Dictionary<string,PartModule> powerProducers = new Dictionary<string,PartModule>();
-        Dictionary<string, PartModule> powerConsumers = new Dictionary<string, PartModule>();
+        List<PartModule> powerProducers = new List<PartModule>();
+        List<PartModule> powerConsumers = new List<PartModule>();
 
         Vessel vessel;
         bool dataReady = false;
@@ -84,6 +84,7 @@ namespace SimpleBoiloff
           {
             totalConsumption += cryoTanks[i].GetCoolingCost();
           }
+          Debug.Log(String.Format("CryoTanks: total ship boiloff consumption: {0} Ec/s", totalConsumption));
           return totalConsumption;
         }
 
@@ -91,33 +92,35 @@ namespace SimpleBoiloff
         protected double DetermineShipPowerConsumption()
         {
           double currentPowerRate = 0d;
-          foreach (KeyValuePair<string,PartModule> kvp in powerConsumers)
+          foreach (PartModule p in powerConsumers)
           {
-            currentPowerRate += GetPowerConsumption(kvp.Key, kvp.Value);
+            currentPowerRate += GetPowerConsumption(p);
           }
           return currentPowerRate;
         }
-        protected double GetPowerConsumption(string modType, PartModule pm)
+        protected double GetPowerConsumption(PartModule pm)
         {
-          double production = 0d;
-          switch (modType)
+          double consumption = 0d;
+          switch (pm.moduleName)
           {
           }
-          return production;
+          Debug.Log(String.Format("CryoTanks: total ship power consumption: {0} Ec/s", consumption));
+          return consumption;
         }
         protected double DetermineShipPowerProduction()
         {
           double currentPowerRate = 0d;
-          foreach (KeyValuePair<string,PartModule> kvp in powerProducers)
+          foreach (PartModule p in powerProducers)
           {
-            currentPowerRate += GetPowerProduction(kvp.Key, kvp.Value);
+            currentPowerRate += GetPowerProduction(p);
           }
+          Debug.Log(String.Format("CryoTanks: total ship power production: {0} Ec/s", currentPowerRate));
           return currentPowerRate;
         }
-        protected double GetPowerProduction(string modType, PartModule pm)
+        protected double GetPowerProduction(PartModule pm)
         {
           double production = 0d;
-          switch (modType)
+          switch (pm.moduleName)
           {
             case "ModuleDeployableSolarPanel":
               production = GetModuleDeployableSolarPanelProduction(pm);
@@ -159,7 +162,8 @@ namespace SimpleBoiloff
         //
         protected double GetModuleDeployableSolarPanelProduction(PartModule pm)
         {
-          return (double)pm.Fields.GetValue("flowRate");
+          
+          return double.Parse((string)pm.Fields.GetValue("flowRate"));
         }
         // TODO: implement me!
         protected double GetModuleResourceConverterProduction(PartModule pm)
@@ -219,15 +223,15 @@ namespace SimpleBoiloff
           Debug.Log(String.Format("CryoTanks: {0} cryo tanks detected", cryoTanks.Count));
           dataReady = true;
         }
-        protected void TryAddModule(string moduleName, PartModule pm, ref Dictionary<string,PartModule> dict)
+        protected void TryAddModule(string moduleName, PartModule pm, ref List<PartModule> dict)
         {
           if (pm.moduleName == moduleName)
           {
-            dict.Add(moduleName, pm);
+            dict.Add(pm);
             Debug.Log(String.Format("CryoTanks: {0} detected and added",moduleName));
           }
         }
-        protected void TryAddModule(string moduleName, PartModule pm, ref Dictionary<string,PartModule> dict, bool inputs)
+        protected void TryAddModule(string moduleName, PartModule pm, ref List<PartModule> dict, bool inputs)
         {
           bool valid = false;
           if (pm.moduleName == moduleName)
@@ -270,7 +274,7 @@ namespace SimpleBoiloff
           }
           if (valid)
           {
-              dict.Add(moduleName, pm);
+              dict.Add(pm);
               Debug.Log(String.Format("CryoTanks: {0} detected and added", moduleName));
           }
         }
