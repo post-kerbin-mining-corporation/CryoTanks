@@ -54,6 +54,7 @@
   <ItemGroup>
     <Compile Include="ModuleBoiloffController.cs" />
     <Compile Include="ModuleSimpleBoiloff.cs" />
+    <Compile Include="PowerUtils.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

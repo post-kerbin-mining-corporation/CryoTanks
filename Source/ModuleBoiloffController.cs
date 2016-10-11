@@ -58,18 +58,25 @@ namespace SimpleBoiloff
 
           double boiloffConsumption = DetermineBoiloffConsumption();
 
-          AllocatePower(production-consumption);
+          AllocatePower(production-consumption, boiloffConsumption);
 
         }
 
-        protected void AllocatePower(double availablePower)
+        protected void AllocatePower(double availablePower, double boiloffConsumption)
         {
+
+          float powerDeficit = Mathf.Clamp((float)(availablePower - boiloffConsumption),-9999999f, 0f);
+
+          Debug.Log(String.Format("Power Deficit: {0}", powerDeficit));
           double usedPower = 0d;
+
           for (int i = 0; i< cryoTanks.Count;i++)
           {
-              if (usedPower <= availablePower)
+              if (usedPower >= availablePower)
               {
-                usedPower += cryoTanks[i].SetBoiloffState(true);
+                  cryoTanks[i].TryConsumeCharge();
+                //usedPower += cryoTanks[i].SetBoiloffState(true);
+         
               } else
               {
                 usedPower += cryoTanks[i].SetBoiloffState(false);
@@ -96,15 +103,29 @@ namespace SimpleBoiloff
           {
             currentPowerRate += GetPowerConsumption(p);
           }
+          Debug.Log(String.Format("CryoTanks: total ship power consumption: {0} Ec/s", currentPowerRate));
           return currentPowerRate;
+          
         }
         protected double GetPowerConsumption(PartModule pm)
         {
           double consumption = 0d;
           switch (pm.moduleName)
           {
+              case "ModuleActiveRadiator":
+                  consumption = PowerUtils.GetModuleActiveRadiatorConsumption(pm);
+                  break;
+              case "ModuleResourceHarvester":
+                  consumption = PowerUtils.GetModuleResourceHarvesterConsumption(pm);
+                  break;
+              case "ModuleGenerator":
+                  consumption = PowerUtils.GetModuleGeneratorConsumption(pm);
+                  break;
+              case "ModuleResourceConverter":
+                  consumption = PowerUtils.GetModuleResourceConverterConsumption(pm);
+                  break;
           }
-          Debug.Log(String.Format("CryoTanks: total ship power consumption: {0} Ec/s", consumption));
+          
           return consumption;
         }
         protected double DetermineShipPowerProduction()
@@ -123,69 +144,27 @@ namespace SimpleBoiloff
           switch (pm.moduleName)
           {
             case "ModuleDeployableSolarPanel":
-              production = GetModuleDeployableSolarPanelProduction(pm);
+                  production = PowerUtils.GetModuleDeployableSolarPanelProduction(pm);
               break;
             case "ModuleCurvedSolarPanel":
-                production = GetModuleDeployableSolarPanelProduction(pm);
+              production = PowerUtils.GetModuleCurvedSolarPanelProduction(pm);
                 break;
             case "FissionGenerator":
-              production = GetFissionGeneratorProduction(pm);
+                production = PowerUtils.GetFissionGeneratorProduction(pm);
               break;
             case "ModuleRadioisotopeGenerator":
-            production = GetModuleRadioisotopeGeneratorProduction(pm);
+              production = PowerUtils.GetModuleRadioisotopeGeneratorProduction(pm);
               break;
             case "ModuleGenerator":
-              production = GetModuleGeneratorProduction(pm);
+              production = PowerUtils.GetModuleGeneratorProduction(pm);
               break;
             case "ModuleResourceConverter":
-              production = GetModuleResourceConverterProduction(pm);
+              production = PowerUtils.GetModuleResourceConverterProduction(pm);
               break;
           
           }
           return production;
         }
-
-        // Power generation evaluators, return power in double rate/s
-        // STOCK
-        protected double GetModuleGeneratorProduction(PartModule pm)
-        {
-          ModuleGenerator gen = (ModuleGenerator)pm;
-          if (gen == null || !gen.generatorIsActive)
-            return 0d;
-          for (int i = 0; i < gen.resHandler.outputResources.Count; i++)
-              if (gen.resHandler.outputResources[i].name == "ElectricCharge")
-                  return (double)gen.efficiency * gen.resHandler.outputResources[i].rate;
-
-          return 0d;
-
-        }
-        //
-        protected double GetModuleDeployableSolarPanelProduction(PartModule pm)
-        {
-          
-          return double.Parse((string)pm.Fields.GetValue("flowRate"));
-        }
-        // TODO: implement me!
-        protected double GetModuleResourceConverterProduction(PartModule pm)
-        {
-          return 0d;
-        }
-        // NFT
-        protected double GetFissionGeneratorProduction(PartModule pm)
-        {
-          return (double)pm.Fields.GetValue("CurrentGeneration");
-        }
-        protected double GetModuleRadioisotopeGeneratorProduction(PartModule pm)
-        {
-          return (double)pm.Fields.GetValue("ActualPower");
-        }
-        protected double GetModuleCurvedSolarPanelProduction(PartModule pm)
-        {
-          return (double)pm.Fields.GetValue("energyFlow");
-        }
-
-        // Power consumption evaluators, return power in double rate/s
-        // STOCK
 
 
         protected void GetVesselElectricalData()
@@ -199,6 +178,7 @@ namespace SimpleBoiloff
               ModuleCryoTank tank =  part.GetComponent<ModuleCryoTank>();
               if (tank != null)
                   cryoTanks.Add(tank);
+
               for (int j = part.Modules.Count - 1; j >= 0; --j)
               {
                   
@@ -218,6 +198,7 @@ namespace SimpleBoiloff
                   TryAddModule("ModuleGenerator", m, ref powerConsumers, true);
                   TryAddModule("ModuleResourceConverter", m, ref powerConsumers, true);
                   TryAddModule("ModuleResourceHarvester", m, ref powerConsumers, true);
+                  TryAddModule("ModuleActiveRadiator", m, ref powerConsumers, true);
               }
             }
           Debug.Log(String.Format("CryoTanks: {0} cryo tanks detected", cryoTanks.Count));

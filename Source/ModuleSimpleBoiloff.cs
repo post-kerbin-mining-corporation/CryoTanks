@@ -72,14 +72,28 @@ namespace SimpleBoiloff
 
         public override string GetInfo()
         {
+            Debug.Log("GETINFO ");
           string msg = String.Format("Loss Rate: {0:F2}% {1}/hr", BoiloffRate, FuelName);
-          if (CoolingCost > 0.0f)
-              msg += String.Format("\nCooling Cost: {0:F2} EC/s per 1000 LH2", CoolingCost);
+          if (HighLogic.LoadedSceneIsEditor)
+          {
+              if (CoolingCost > 0.0f)
+              {
+                  double max = GetMaxResourceAmount(FuelName);
+                  msg += String.Format("\nCooling Cost: {0:F2} Ec/s", CoolingCost*(float)(max/1000.0));
+              }
+          }
+          else
+          {
+              if (CoolingCost > 0.0f)
+                  msg += String.Format("\nCooling Cost: {0:F2} Ec/s per 1000 LH2", CoolingCost);
+          }
+          
           return msg;
         }
 
         public void Start()
         {
+            
             if (HighLogic.LoadedSceneIsFlight)
             {
               maxFuelAmount = GetMaxResourceAmount(FuelName);
@@ -93,6 +107,17 @@ namespace SimpleBoiloff
               }
               // Catchup
               DoCatchup();
+            }
+            if (HighLogic.LoadedSceneIsEditor)
+            {
+                //AvailablePart p = PartLoader.LoadedPartsList.Find(pt => pt.name == part.name);
+                
+                //for (int i = 0; i < p.moduleInfos.Count; i++)
+                //{
+                //    if (p.moduleInfos[i].moduleName == "ModuleCryoTank")
+                //        p.moduleInfos[i].info = GetInfo();
+                //}
+               
             }
         }
 
@@ -114,7 +139,6 @@ namespace SimpleBoiloff
         {
           if (HighLogic.LoadedSceneIsFlight)
           {
-
             // Show the insulation status field if there is a cooling cost
             if (CoolingCost > 0f)
             {
@@ -140,6 +164,19 @@ namespace SimpleBoiloff
 
             }
 
+          }
+          if (HighLogic.LoadedSceneIsEditor)
+          {
+              if (CoolingCost > 0f)
+              {
+                  foreach (BaseField fld in base.Fields)
+                  {
+                      if (fld.guiName == "Insulation")
+                          fld.guiActiveEditor = true;
+                  }
+                  double max = GetMaxResourceAmount(FuelName);
+                  CoolingStatus = String.Format("Cost {0:F2} Ec/s", CoolingCost * (float)(max / 1000.0));
+              }
           }
         }
         protected void FixedUpdate()
@@ -189,7 +226,7 @@ namespace SimpleBoiloff
           {
             return coolingCost;
           }
-          return 0f;
+          return 0d;
         }
 
         public double SetBoiloffState(bool state)
@@ -214,14 +251,28 @@ namespace SimpleBoiloff
 
 
         }
+        public void TryConsumeCharge()
+        {
+            if (CoolingEnabled && coolingCost > 0f)
+            {
+                double chargeRequest = coolingCost * TimeWarp.fixedDeltaTime;
+                double req = part.RequestResource("ElectricCharge", chargeRequest);
+                double tolerance = 0.0001;
+                if (req >= chargeRequest - tolerance)
+                {
+                    SetBoiloffState(false);
+                } else 
+                {
+                    SetBoiloffState(true);
+                }
+            }
+        }
 
         public void ConsumeCharge()
         {
           if (CoolingEnabled && coolingCost > 0f)
           {
-            float clampedDeltaTime = Mathf.Clamp(TimeWarp.fixedDeltaTime, 0f, 10000f * 0.02f);
-
-            double chargeRequest = coolingCost * clampedDeltaTime;
+            double chargeRequest = coolingCost * TimeWarp.fixedDeltaTime;
 
             double req = part.RequestResource("ElectricCharge", chargeRequest);
             //Debug.Log(req.ToString() + " rec, wanted "+ chargeRequest.ToString());
@@ -240,10 +291,9 @@ namespace SimpleBoiloff
                 CoolingStatus = "Uncooled!";
             }
           }
-
-
-
         }
+
+       
         protected void DoBoiloff(double scale)
         {
             // 0.025/100/3600
