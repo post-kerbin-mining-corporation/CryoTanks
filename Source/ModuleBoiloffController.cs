@@ -12,6 +12,9 @@ namespace SimpleBoiloff
 
         float timeWarpLimit = 1000f;
         List<ModuleCryoTank> cryoTanks = new List<ModuleCryoTank>();
+        List<ModuleCryoPowerConsumer> powerConsumers = new List<ModuleCryoPowerConsumer>();
+        List<ModuleCryoPowerProducer> powerProducers = new List<ModuleCryoPowerProducer>();
+
         List<PartModule> powerProducers = new List<PartModule>();
         List<PartModule> powerConsumers = new List<PartModule>();
 
@@ -27,7 +30,7 @@ namespace SimpleBoiloff
 
             GetVesselElectricalData();
         }
-        
+
 
         void FixedUpdate()
         {
@@ -55,11 +58,8 @@ namespace SimpleBoiloff
         {
           double production = DetermineShipPowerProduction();
           double consumption = DetermineShipPowerConsumption();
-
           double boiloffConsumption = DetermineBoiloffConsumption();
-
           AllocatePower(production-consumption, boiloffConsumption);
-
         }
 
         protected void AllocatePower(double availablePower, double boiloffConsumption)
@@ -74,9 +74,8 @@ namespace SimpleBoiloff
           {
               if (usedPower >= availablePower)
               {
-                  cryoTanks[i].TryConsumeCharge();
+                cryoTanks[i].TryConsumeCharge();
                 //usedPower += cryoTanks[i].SetBoiloffState(true);
-         
               } else
               {
                 usedPower += cryoTanks[i].SetBoiloffState(false);
@@ -99,73 +98,24 @@ namespace SimpleBoiloff
         protected double DetermineShipPowerConsumption()
         {
           double currentPowerRate = 0d;
-          foreach (PartModule p in powerConsumers)
+          foreach (ModuleCryoPowerConsumer p in powerConsumers)
           {
-            currentPowerRate += GetPowerConsumption(p);
+            currentPowerRate += p.GetPowerConsumption();
           }
           Debug.Log(String.Format("CryoTanks: total ship power consumption: {0} Ec/s", currentPowerRate));
           return currentPowerRate;
-          
         }
-        protected double GetPowerConsumption(PartModule pm)
-        {
-          double consumption = 0d;
-          switch (pm.moduleName)
-          {
-              case "ModuleActiveRadiator":
-                  consumption = PowerUtils.GetModuleActiveRadiatorConsumption(pm);
-                  break;
-              case "ModuleResourceHarvester":
-                  consumption = PowerUtils.GetModuleResourceHarvesterConsumption(pm);
-                  break;
-              case "ModuleGenerator":
-                  consumption = PowerUtils.GetModuleGeneratorConsumption(pm);
-                  break;
-              case "ModuleResourceConverter":
-                  consumption = PowerUtils.GetModuleResourceConverterConsumption(pm);
-                  break;
-          }
-          
-          return consumption;
-        }
+
         protected double DetermineShipPowerProduction()
         {
           double currentPowerRate = 0d;
-          foreach (PartModule p in powerProducers)
+          foreach (ModuleCryoPowerProducer p in powerProducers)
           {
-            currentPowerRate += GetPowerProduction(p);
+            currentPowerRate += p.GetPowerProduction();
           }
           Debug.Log(String.Format("CryoTanks: total ship power production: {0} Ec/s", currentPowerRate));
           return currentPowerRate;
         }
-        protected double GetPowerProduction(PartModule pm)
-        {
-          double production = 0d;
-          switch (pm.moduleName)
-          {
-            case "ModuleDeployableSolarPanel":
-                  production = PowerUtils.GetModuleDeployableSolarPanelProduction(pm);
-              break;
-            case "ModuleCurvedSolarPanel":
-              production = PowerUtils.GetModuleCurvedSolarPanelProduction(pm);
-                break;
-            case "FissionGenerator":
-                production = PowerUtils.GetFissionGeneratorProduction(pm);
-              break;
-            case "ModuleRadioisotopeGenerator":
-              production = PowerUtils.GetModuleRadioisotopeGeneratorProduction(pm);
-              break;
-            case "ModuleGenerator":
-              production = PowerUtils.GetModuleGeneratorProduction(pm);
-              break;
-            case "ModuleResourceConverter":
-              production = PowerUtils.GetModuleResourceConverterProduction(pm);
-              break;
-          
-          }
-          return production;
-        }
-
 
         protected void GetVesselElectricalData()
         {
@@ -181,84 +131,98 @@ namespace SimpleBoiloff
 
               for (int j = part.Modules.Count - 1; j >= 0; --j)
               {
-                  
                   PartModule m = part.Modules[j];
-                  // Add all power producers
-                  // Stock
-                  TryAddModule("ModuleGenerator", m, ref powerProducers, false);
-                  TryAddModule("ModuleDeployableSolarPanel", m, ref powerProducers);
-                  TryAddModule("ModuleResourceConverter", m, ref powerProducers, false);
-                  // NFT
-                  TryAddModule("FissionGenerator", m, ref powerProducers);
-                  TryAddModule("ModuleRadioisotopeGenerator", m, ref powerProducers);
-                  TryAddModule("ModuleCurvedSolarPanel", m, ref powerProducers);
-
-                  // Add all power consumers
-                  // Stock
-                  TryAddModule("ModuleGenerator", m, ref powerConsumers, true);
-                  TryAddModule("ModuleResourceConverter", m, ref powerConsumers, true);
-                  TryAddModule("ModuleResourceHarvester", m, ref powerConsumers, true);
-                  TryAddModule("ModuleActiveRadiator", m, ref powerConsumers, true);
+                  // Try to create accessor modules
+                  bool success = TrySetupProducer(m);
+                  if (!success)
+                    TrySetupConsumer(m);
               }
             }
           Debug.Log(String.Format("CryoTanks: {0} cryo tanks detected", cryoTanks.Count));
           dataReady = true;
         }
-        protected void TryAddModule(string moduleName, PartModule pm, ref List<PartModule> dict)
+        protected void TrySetupProducer(PartModule pm)
         {
-          if (pm.moduleName == moduleName)
+          PowerProducerType prodType;
+          if (Enum.TryParse(moduleName, prodType))
           {
-            dict.Add(pm);
-            Debug.Log(String.Format("CryoTanks: {0} detected and added",moduleName));
-          }
-        }
-        protected void TryAddModule(string moduleName, PartModule pm, ref List<PartModule> dict, bool inputs)
-        {
-          bool valid = false;
-          if (pm.moduleName == moduleName)
-          {
-            // If i'm a resource converter...
-            if (moduleName == "ModuleResourceConverter" || moduleName == "ModuleResourceHarvester")
+            // Verify
+            bool isProducer = VerifyInputs(pm, true);
+            if (isProducer)
             {
-              BaseConverter conv = (BaseConverter)pm;
-              if (inputs)
-              {
-                for (int i = 0;i < conv.inputList.Count;i++)
-                  if (conv.inputList[i].ResourceName == "ElectricCharge")
-                      valid = true;
-              } else
-              {
-                for (int i = 0;i < conv.outputList.Count;i++)
-                  if (conv.inputList[i].ResourceName == "ElectricCharge")
-                      valid = true;
-              }
-
-            } else if (moduleName == "ModuleGenerator")
-            {
-              ModuleGenerator gen = (ModuleGenerator)pm;
-              if (inputs)
-              {
-                  for (int i = 0; i < gen.resHandler.inputResources.Count; i++)
-                      if (gen.resHandler.inputResources[i].name == "ElectricCharge")
-                      {
-                          valid = true;
-                      }
-              } else
-              {
-                  for (int i = 0; i < gen.resHandler.outputResources.Count; i++)
-                      if (gen.resHandler.outputResources[i].name == "ElectricCharge")
-                      {
-                          valid = true;
-                      }
-              }
+              ModuleCryoPowerProducer prod =  new ModuleCryoPowerProducer(prodType, pm);
+              powerProducers.Add(prod);
+              return true;
             }
           }
-          if (valid)
-          {
-              dict.Add(pm);
-              Debug.Log(String.Format("CryoTanks: {0} detected and added", moduleName));
-          }
+          return false;
+
+
         }
+        protected void TrySetupConsumer(PartModule pm)
+        {
+          PowerConsumerType prodType;
+          if (Enum.TryParse(moduleName, prodType))
+          {
+            // Verify
+            bool isConsumer = VerifyInputs(pm, false);
+            if (isConsumer)
+            {
+              ModuleCryoPowerConsumer con =  new ModuleCryoPowerConsumer(prodType, pm);
+              powerConusmers.Add(con);
+              return true;
+            }
+          }
+          return false;
+
+
+        }
+        /// Checks to see whether a ModuleGenerator/ModuleResourceConverter/ModuleResourceHarvester is a producer or consumer
+        protected bool VerifyInputs(PartModule pm, bool isProducer)
+        {
+          if (pm.moduleName == "ModuleResourceConverter" || pm.moduleName == "ModuleGenerator")
+          {
+            BaseConverter conv = (BaseConverter)pm;
+            if (isProducer)
+            {
+              for (int i = 0;i < conv.outputList.Count;i++)
+                if (conv.inputList[i].ResourceName == "ElectricCharge")
+                    return true;
+              return false;
+            } else
+            {
+              for (int i = 0;i < conv.inputList.Count;i++)
+                if (conv.inputList[i].ResourceName == "ElectricCharge")
+                    return true
+              return false;
+            }
+          }
+          if (pm.moduleName == "ModuleGenerator")
+          {
+            ModuleGenerator gen = (ModuleGenerator)pm;
+            if (isProducer)
+            {
+              for (int i = 0; i < gen.resHandler.outputResources.Count; i++)
+                  if (gen.resHandler.outputResources[i].name == "ElectricCharge")
+                  {
+                      return true;
+                  }
+              return false;
+            } else
+            {
+              for (int i = 0; i < gen.resHandler.inputResources.Count; i++)
+                  if (gen.resHandler.inputResources[i].name == "ElectricCharge")
+                  {
+                      return true;
+                  }
+              return false;
+            }
+          }
+          return true;
+        }
+
+
+
 
   }
 }

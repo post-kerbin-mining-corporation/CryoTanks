@@ -72,28 +72,19 @@ namespace SimpleBoiloff
 
         public override string GetInfo()
         {
-            Debug.Log("GETINFO ");
+          Debug.Log("GETINFO ");
           string msg = String.Format("Loss Rate: {0:F2}% {1}/hr", BoiloffRate, FuelName);
-          if (HighLogic.LoadedSceneIsEditor)
-          {
-              if (CoolingCost > 0.0f)
-              {
-                  double max = GetMaxResourceAmount(FuelName);
-                  msg += String.Format("\nCooling Cost: {0:F2} Ec/s", CoolingCost*(float)(max/1000.0));
-              }
-          }
-          else
-          {
-              if (CoolingCost > 0.0f)
-                  msg += String.Format("\nCooling Cost: {0:F2} Ec/s per 1000 LH2", CoolingCost);
-          }
-          
+            if (CoolingCost > 0.0f)
+            {
+                double max = GetMaxResourceAmount(FuelName);
+                msg += String.Format("\nCooling Cost: {0:F2} Ec/s", CoolingCost*(float)(max/1000.0));
+            }
           return msg;
         }
 
         public void Start()
         {
-            
+
             if (HighLogic.LoadedSceneIsFlight)
             {
               maxFuelAmount = GetMaxResourceAmount(FuelName);
@@ -111,13 +102,13 @@ namespace SimpleBoiloff
             if (HighLogic.LoadedSceneIsEditor)
             {
                 //AvailablePart p = PartLoader.LoadedPartsList.Find(pt => pt.name == part.name);
-                
+
                 //for (int i = 0; i < p.moduleInfos.Count; i++)
                 //{
                 //    if (p.moduleInfos[i].moduleName == "ModuleCryoTank")
                 //        p.moduleInfos[i].info = GetInfo();
                 //}
-               
+
             }
         }
 
@@ -261,7 +252,7 @@ namespace SimpleBoiloff
                 if (req >= chargeRequest - tolerance)
                 {
                     SetBoiloffState(false);
-                } else 
+                } else
                 {
                     SetBoiloffState(true);
                 }
@@ -293,7 +284,7 @@ namespace SimpleBoiloff
           }
         }
 
-       
+
         protected void DoBoiloff(double scale)
         {
             // 0.025/100/3600
