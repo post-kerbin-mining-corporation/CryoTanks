@@ -13,6 +13,9 @@ namespace SimpleBoiloff
         [KSPField(isPersistant = false)]
         public string FuelName;
 
+        [KSPField(isPersistant = false)]
+        public double FuelTotal;
+
         // Rate of boiling off in %/hr
         [KSPField(isPersistant = false)]
         public float BoiloffRate = 0.025f;
@@ -31,6 +34,8 @@ namespace SimpleBoiloff
 
         [KSPField(isPersistant = true)]
         public bool BoiloffOccuring = false;
+
+
 
         // PRIVATE
         private double fuelAmount = 0.0;
@@ -76,8 +81,8 @@ namespace SimpleBoiloff
           string msg = String.Format("Loss Rate: {0:F2}% {1}/hr", BoiloffRate, FuelName);
             if (CoolingCost > 0.0f)
             {
-               //ouble max = GetMaxResourceAmount(FuelName);
-                //g += String.Format("\nCooling Cost: {0:F2} Ec/s", CoolingCost*(float)(max/1000.0));
+               
+                msg += String.Format("\nCooling Cost: {0:F2} Ec/s", CoolingCost*(float)(FuelTotal/1000.0));
             }
           return msg;
         }
