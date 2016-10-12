@@ -76,8 +76,8 @@ namespace SimpleBoiloff
           string msg = String.Format("Loss Rate: {0:F2}% {1}/hr", BoiloffRate, FuelName);
             if (CoolingCost > 0.0f)
             {
-                double max = GetMaxResourceAmount(FuelName);
-                msg += String.Format("\nCooling Cost: {0:F2} Ec/s", CoolingCost*(float)(max/1000.0));
+               //ouble max = GetMaxResourceAmount(FuelName);
+                //g += String.Format("\nCooling Cost: {0:F2} Ec/s", CoolingCost*(float)(max/1000.0));
             }
           return msg;
         }
@@ -320,7 +320,11 @@ namespace SimpleBoiloff
         }
         protected double GetMaxResourceAmount(string nm)
         {
-            PartResource res = this.part.Resources.Get(PartResourceLibrary.Instance.GetDefinition(nm).id);
+            
+            int id = PartResourceLibrary.Instance.GetDefinition(nm).id;
+            
+            PartResource res = this.part.Resources.Get(id);
+            Debug.Log(res);
             return res.maxAmount;
         }
 

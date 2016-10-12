@@ -19,7 +19,7 @@ namespace SimpleBoiloff
 
       PowerConsumerType consumerType;
       // Generic reference to PartModule
-      PartModule pm
+      PartModule pm;
 
       // Hard references to stock modules
       ModuleGenerator gen;
@@ -54,16 +54,12 @@ namespace SimpleBoiloff
         {
           case PowerConsumerType.ModuleActiveRadiator:
             return 0d;
-            break;
           case PowerConsumerType.ModuleResourceConverter:
             return 0d;
-            break;
           case PowerConsumerType.ModuleGenerator:
             return 0d;
-            break;
           case PowerConsumerType.ModuleResourceHarvester:
             return 0d;
-            break;
         }
         return 0d;
       }
@@ -82,7 +78,7 @@ namespace SimpleBoiloff
       {
           return 0d;
       }
-      double GetModuleResourceHarvesterConsumption(P)
+      double GetModuleResourceHarvesterConsumption()
       {
           return 0d;
       }

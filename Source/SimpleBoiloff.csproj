@@ -53,6 +53,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ModuleBoiloffController.cs" />
+    <Compile Include="ModuleCryoPowerConsumer.cs" />
+    <Compile Include="ModuleCryoPowerProducer.cs" />
     <Compile Include="ModuleSimpleBoiloff.cs" />
     <Compile Include="PowerUtils.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

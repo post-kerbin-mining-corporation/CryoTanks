@@ -15,9 +15,6 @@ namespace SimpleBoiloff
         List<ModuleCryoPowerConsumer> powerConsumers = new List<ModuleCryoPowerConsumer>();
         List<ModuleCryoPowerProducer> powerProducers = new List<ModuleCryoPowerProducer>();
 
-        List<PartModule> powerProducers = new List<PartModule>();
-        List<PartModule> powerConsumers = new List<PartModule>();
-
         Vessel vessel;
         bool dataReady = false;
         int partCount = -1;
@@ -141,10 +138,10 @@ namespace SimpleBoiloff
           Debug.Log(String.Format("CryoTanks: {0} cryo tanks detected", cryoTanks.Count));
           dataReady = true;
         }
-        protected void TrySetupProducer(PartModule pm)
+        protected bool TrySetupProducer(PartModule pm)
         {
           PowerProducerType prodType;
-          if (Enum.TryParse(moduleName, prodType))
+          if (TryParse<PowerProducerType>(pm.moduleName, out prodType))
           {
             // Verify
             bool isProducer = VerifyInputs(pm, true);
@@ -159,17 +156,17 @@ namespace SimpleBoiloff
 
 
         }
-        protected void TrySetupConsumer(PartModule pm)
+        protected bool TrySetupConsumer(PartModule pm)
         {
           PowerConsumerType prodType;
-          if (Enum.TryParse(moduleName, prodType))
+          if (TryParse<PowerConsumerType>(pm.moduleName, out prodType))
           {
             // Verify
             bool isConsumer = VerifyInputs(pm, false);
             if (isConsumer)
             {
               ModuleCryoPowerConsumer con =  new ModuleCryoPowerConsumer(prodType, pm);
-              powerConusmers.Add(con);
+              powerConsumers.Add(con);
               return true;
             }
           }
@@ -191,9 +188,9 @@ namespace SimpleBoiloff
               return false;
             } else
             {
-              for (int i = 0;i < conv.inputList.Count;i++)
-                if (conv.inputList[i].ResourceName == "ElectricCharge")
-                    return true
+                for (int i = 0; i < conv.inputList.Count; i++)
+                    if (conv.inputList[i].ResourceName == "ElectricCharge")
+                        return true;
               return false;
             }
           }
@@ -222,7 +219,17 @@ namespace SimpleBoiloff
         }
 
 
-
+        public static bool TryParse<TEnum>(string value, out TEnum result)
+      where TEnum : struct, IConvertible
+        {
+            var retValue = value == null ?
+                        false :
+                        Enum.IsDefined(typeof(TEnum), value);
+            result = retValue ?
+                        (TEnum)Enum.Parse(typeof(TEnum), value) :
+                        default(TEnum);
+            return retValue;
+        }
 
   }
 }

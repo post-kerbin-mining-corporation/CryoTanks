@@ -22,7 +22,7 @@ namespace SimpleBoiloff
 
       PowerProducerType producerType;
       // Generic reference to PartModule
-      PartModule pm
+      PartModule pm;
 
       // Hard references to stock modules
       ModuleDeployableSolarPanel panel;
@@ -42,7 +42,7 @@ namespace SimpleBoiloff
             gen = (ModuleGenerator)pm;
             break;
           case PowerProducerType.ModuleResourceConverter:
-            converter = (ModuleResourceConverter)pm
+            converter = (ModuleResourceConverter)pm;
             break;
         }
       }
@@ -52,30 +52,28 @@ namespace SimpleBoiloff
         switch (producerType)
         {
           case PowerProducerType.ModuleDeployableSolarPanel:
-            return GetModuleDeployableSolarPanelProduction();
-            break;
+                return GetModuleDeployableSolarPanelProduction();
           case PowerProducerType.ModuleGenerator:
             return GetModuleGeneratorProduction();
-            break;
           case PowerProducerType.ModuleResourceConverter:
-            return GetModuleResourceConverterProduction()
-            break;
+            return GetModuleResourceConverterProduction();
           case PowerProducerType.ModuleCurvedSolarPanel:
-            return GetModuleCurvedSolarPanelProduction()
-            break;
-          case PowerProducerType.FissionGenerator;
+            return GetModuleCurvedSolarPanelProduction();
+            
+            case PowerProducerType.FissionGenerator:
             return GetFissionGeneratorProduction();
-            break;
+   
           case PowerProducerType.ModuleRadioisotopeGenerator:
             return GetModuleRadioisotopeGeneratorProduction();
-            break;
         }
+          return 0d;
       }
 
       double GetModuleDeployableSolarPanelProduction()
       {
         if (panel != null)
           return (double)panel.flowRate;
+        return 0d;
       }
 
       double GetModuleGeneratorProduction()
