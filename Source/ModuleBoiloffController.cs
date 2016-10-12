@@ -15,14 +15,12 @@ namespace SimpleBoiloff
         List<ModuleCryoPowerConsumer> powerConsumers = new List<ModuleCryoPowerConsumer>();
         List<ModuleCryoPowerProducer> powerProducers = new List<ModuleCryoPowerProducer>();
 
-        Vessel vessel;
         bool dataReady = false;
         int partCount = -1;
 
         protected override void  OnStart()
         {
  	        base.OnStart();
-            vessel = GetComponent<Vessel>();
             partCount = vessel.parts.Count;
 
             GetVesselElectricalData();
@@ -177,7 +175,7 @@ namespace SimpleBoiloff
         /// Checks to see whether a ModuleGenerator/ModuleResourceConverter/ModuleResourceHarvester is a producer or consumer
         protected bool VerifyInputs(PartModule pm, bool isProducer)
         {
-          if (pm.moduleName == "ModuleResourceConverter" || pm.moduleName == "ModuleGenerator")
+          if (pm.moduleName == "ModuleResourceConverter" || pm.moduleName == "ModuleResourceHarvester")
           {
             BaseConverter conv = (BaseConverter)pm;
             if (isProducer)

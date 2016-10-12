@@ -104,17 +104,6 @@ namespace SimpleBoiloff
               // Catchup
               DoCatchup();
             }
-            if (HighLogic.LoadedSceneIsEditor)
-            {
-                //AvailablePart p = PartLoader.LoadedPartsList.Find(pt => pt.name == part.name);
-
-                //for (int i = 0; i < p.moduleInfos.Count; i++)
-                //{
-                //    if (p.moduleInfos[i].moduleName == "ModuleCryoTank")
-                //        p.moduleInfos[i].info = GetInfo();
-                //}
-
-            }
         }
 
         public void DoCatchup()
