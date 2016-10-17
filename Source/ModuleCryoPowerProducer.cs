@@ -29,6 +29,8 @@ namespace SimpleBoiloff
       ModuleGenerator gen;
       ModuleResourceConverter converter;
 
+      public string ProducerType {get {return producerType.ToString();}}
+
       public ModuleCryoPowerProducer(PowerProducerType tp, PartModule mod)
       {
         producerType = tp;
@@ -59,10 +61,10 @@ namespace SimpleBoiloff
             return GetModuleResourceConverterProduction();
           case PowerProducerType.ModuleCurvedSolarPanel:
             return GetModuleCurvedSolarPanelProduction();
-            
+
             case PowerProducerType.FissionGenerator:
             return GetFissionGeneratorProduction();
-   
+
           case PowerProducerType.ModuleRadioisotopeGenerator:
             return GetModuleRadioisotopeGeneratorProduction();
         }
@@ -88,7 +90,11 @@ namespace SimpleBoiloff
 
       double GetModuleResourceConverterProduction()
       {
-          return 0d;
+         if (converter == null || !converter.IsActivated)
+           return 0d;
+           for (int i = 0; i < gen.resHandler.outputResources.Count; i++)
+               if (gen.resHandler.outputResources[i].name == "ElectricCharge")
+                   return (double)gen.efficiency * gen.resHandler.outputResources[i].rate;
       }
 
       // NFT

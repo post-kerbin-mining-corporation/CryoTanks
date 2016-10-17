@@ -11,12 +11,16 @@ namespace SimpleBoiloff
   {
 
         float timeWarpLimit = 1000f;
-        List<ModuleCryoTank> cryoTanks = new List<ModuleCryoTank>();
-        List<ModuleCryoPowerConsumer> powerConsumers = new List<ModuleCryoPowerConsumer>();
-        List<ModuleCryoPowerProducer> powerProducers = new List<ModuleCryoPowerProducer>();
+        public List<ModuleCryoTank> cryoTanks = new List<ModuleCryoTank>();
+        public List<ModuleCryoPowerConsumer> powerConsumers = new List<ModuleCryoPowerConsumer>();
+        public List<ModuleCryoPowerProducer> powerProducers = new List<ModuleCryoPowerProducer>();
 
+
+        bool analyticMode = false;
         bool dataReady = false;
         int partCount = -1;
+
+        public bool AnalyticMode {get {return analyticMode;}}
 
         protected override void  OnStart()
         {
@@ -33,10 +37,12 @@ namespace SimpleBoiloff
           {
             if (TimeWarp.CurrentRate < timeWarpLimit)
             {
+              analyticMode = false;
                 DoLowWarpSimulation();
 
             } else
             {
+              analyticMode = true;
               DoHighWarpSimulation();
             }
 
@@ -78,7 +84,7 @@ namespace SimpleBoiloff
           }
         }
 
-        protected double DetermineBoiloffConsumption()
+        public double DetermineBoiloffConsumption()
         {
           double totalConsumption = 0d;
           for (int i = 0; i < cryoTanks.Count;i++)
@@ -90,7 +96,7 @@ namespace SimpleBoiloff
         }
 
         // TODO: implement me!
-        protected double DetermineShipPowerConsumption()
+        public double DetermineShipPowerConsumption()
         {
           double currentPowerRate = 0d;
           foreach (ModuleCryoPowerConsumer p in powerConsumers)
@@ -101,7 +107,7 @@ namespace SimpleBoiloff
           return currentPowerRate;
         }
 
-        protected double DetermineShipPowerProduction()
+        public double DetermineShipPowerProduction()
         {
           double currentPowerRate = 0d;
           foreach (ModuleCryoPowerProducer p in powerProducers)
