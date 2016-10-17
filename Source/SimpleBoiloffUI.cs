@@ -203,6 +203,29 @@ namespace SimpleBoiloff
 
         void Update()
         {
+          if (FlightGlobals.ActiveVessel != null)
+            {
+                if (activeVessel != null)
+                {
+                    if (partCount != activeVessel.parts.Count || activeVessel != FlightGlobals.ActiveVessel)
+                    {
+                        FindController();
+                    }
+                }
+                else
+                {
+                    FindController();
+                }
+
+            }
+            if (activeVessel != null)
+            {
+                if (partCount != activeVessel.parts.Count || activeVessel != FlightGlobals.ActiveVessel)
+                {
+                    FindController();
+
+                }
+            }
           if ((Input.GetKey(KeyCode.RightControl) || Input.GetKey(KeyCode.LeftControl)) &&
             (Input.GetKey(KeyCode.RightShift) || Input.GetKey(KeyCode.LeftShift)) &&
             Input.GetKeyDown(KeyCode.C) )
