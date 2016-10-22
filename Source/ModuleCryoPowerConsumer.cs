@@ -27,6 +27,7 @@ namespace SimpleBoiloff
       ModuleResourceHarvester harvester;
       ModuleActiveRadiator radiator;
 
+      public string ConsumerType { get { return consumerType.ToString(); } }
 
       public ModuleCryoPowerConsumer(PowerConsumerType tp, PartModule mod)
       {

@@ -8,25 +8,26 @@ using KSP.UI.Screens;
 namespace SimpleBoiloff
 {
     [KSPAddon(KSPAddon.Startup.Flight, false)]
-    public class SimpleBoiloffUI:MonoBehavior
+    public class SimpleBoiloffUI: MonoBehaviour
     {
         Vessel activeVessel;
         int partCount = 0;
-        ModuleBoiloffController boiler;
-
+        BoiloffController boiler;
+        bool showBoiloffWindow = false;
 
         public void Start()
         {
             if (HighLogic.LoadedSceneIsFlight)
             {
                 //RenderingManager.AddToPostDrawQueue(0, DrawCapacitorGUI);
-                FindData();
-                Utils.LogWarn(windowID.ToString());
+                FindController();
+                
             }
         }
 
-        public static void ToggleBoiloffWindow()
+        public void ToggleBoiloffWindow()
         {
+            Debug.Log("Toggle Window");
             showBoiloffWindow = !showBoiloffWindow;
         }
 
@@ -36,7 +37,7 @@ namespace SimpleBoiloff
             partCount = activeVessel.parts.Count;
 
             //Debug.Log("NFE: Capacitor Manager: Finding Capcitors");
-            boiler = activeVessel.GetComponent<ModuleBoiloffController>();
+            boiler = activeVessel.GetComponent<BoiloffController>();
         }
 
         // GUI VARS
@@ -85,11 +86,7 @@ namespace SimpleBoiloff
 
             initStyles = true;
         }
-        public void Awake()
-        {
-            Utils.Log("UI: Awake");
-        }
-
+       
         private void OnGUI()
         {
             if (Event.current.type == EventType.Repaint || Event.current.isMouse)
@@ -169,7 +166,7 @@ namespace SimpleBoiloff
                         GUILayout.Label(String.Format("Total Power Consumption: {0:F2} Ec/s", draw), gui_header);
                         GUILayout.EndVertical();
                    GUILayout.EndHorizontal();
-                   GUILayout.Label(String.Format("Net Power Deficit: {0:F2} Ec/s", gain - draw - cryoCost), gui_header);
+                   GUILayout.Label(String.Format("Net Power Deficit: {0:F2} Ec/s", (gain - draw - cryoCost)*(-1.0)), gui_header);
                GUILayout.EndScrollView();
             }
             else
@@ -196,7 +193,7 @@ namespace SimpleBoiloff
         private void DrawPowerConsumer(ModuleCryoPowerConsumer cons)
         {
           GUILayout.BeginHorizontal();
-          GUILayout.Label(cons.ProducerType, gui_header);
+          GUILayout.Label(cons.ConsumerType, gui_header);
           GUILayout.Label(String.Format("Consuming: {0:F1} Ec/s", cons.GetPowerConsumption()), gui_text);
           GUILayout.EndHorizontal();
         }
@@ -228,7 +225,7 @@ namespace SimpleBoiloff
             }
           if ((Input.GetKey(KeyCode.RightControl) || Input.GetKey(KeyCode.LeftControl)) &&
             (Input.GetKey(KeyCode.RightShift) || Input.GetKey(KeyCode.LeftShift)) &&
-            Input.GetKeyDown(KeyCode.C) )
+            Input.GetKeyDown(KeyCode.P) )
           {
             ToggleBoiloffWindow();
               // CTRL + Z

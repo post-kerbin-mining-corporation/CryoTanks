@@ -29,6 +29,8 @@ namespace SimpleBoiloff
       ModuleGenerator gen;
       ModuleResourceConverter converter;
 
+      double converterEcRate;
+
       public string ProducerType {get {return producerType.ToString();}}
 
       public ModuleCryoPowerProducer(PowerProducerType tp, PartModule mod)
@@ -45,6 +47,9 @@ namespace SimpleBoiloff
             break;
           case PowerProducerType.ModuleResourceConverter:
             converter = (ModuleResourceConverter)pm;
+            for (int i = 0; i < converter.resHandler.outputResources.Count; i++)
+                if (converter.resHandler.outputResources[i].name == "ElectricCharge")
+                    converterEcRate = converter.resHandler.outputResources[i].rate;
             break;
         }
       }
@@ -92,9 +97,7 @@ namespace SimpleBoiloff
       {
          if (converter == null || !converter.IsActivated)
            return 0d;
-           for (int i = 0; i < gen.resHandler.outputResources.Count; i++)
-               if (gen.resHandler.outputResources[i].name == "ElectricCharge")
-                   return (double)gen.efficiency * gen.resHandler.outputResources[i].rate;
+         return converterEcRate * converter.lastTimeFactor;
       }
 
       // NFT

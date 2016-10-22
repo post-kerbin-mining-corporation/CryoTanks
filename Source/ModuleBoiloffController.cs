@@ -68,7 +68,7 @@ namespace SimpleBoiloff
 
           float powerDeficit = Mathf.Clamp((float)(availablePower - boiloffConsumption),-9999999f, 0f);
 
-          Debug.Log(String.Format("Power Deficit: {0}", powerDeficit));
+         // Debug.Log(String.Format("Power Deficit: {0}", powerDeficit));
           double usedPower = 0d;
 
           for (int i = 0; i< cryoTanks.Count;i++)
@@ -91,7 +91,7 @@ namespace SimpleBoiloff
           {
             totalConsumption += cryoTanks[i].GetCoolingCost();
           }
-          Debug.Log(String.Format("CryoTanks: total ship boiloff consumption: {0} Ec/s", totalConsumption));
+          //Debug.Log(String.Format("CryoTanks: total ship boiloff consumption: {0} Ec/s", totalConsumption));
           return totalConsumption;
         }
 
@@ -103,7 +103,7 @@ namespace SimpleBoiloff
           {
             currentPowerRate += p.GetPowerConsumption();
           }
-          Debug.Log(String.Format("CryoTanks: total ship power consumption: {0} Ec/s", currentPowerRate));
+          //Debug.Log(String.Format("CryoTanks: total ship power consumption: {0} Ec/s", currentPowerRate));
           return currentPowerRate;
         }
 
@@ -114,7 +114,7 @@ namespace SimpleBoiloff
           {
             currentPowerRate += p.GetPowerProduction();
           }
-          Debug.Log(String.Format("CryoTanks: total ship power production: {0} Ec/s", currentPowerRate));
+          //Debug.Log(String.Format("CryoTanks: total ship power production: {0} Ec/s", currentPowerRate));
           return currentPowerRate;
         }
 
@@ -128,7 +128,10 @@ namespace SimpleBoiloff
 
               ModuleCryoTank tank =  part.GetComponent<ModuleCryoTank>();
               if (tank != null)
-                  cryoTanks.Add(tank);
+              {
+                  if (tank.isResourcePresent(tank.FuelName))
+                    cryoTanks.Add(tank);
+              }
 
               for (int j = part.Modules.Count - 1; j >= 0; --j)
               {
@@ -139,7 +142,7 @@ namespace SimpleBoiloff
                     TrySetupConsumer(m);
               }
             }
-          Debug.Log(String.Format("CryoTanks: {0} cryo tanks detected", cryoTanks.Count));
+          //Debug.Log(String.Format("CryoTanks: {0} cryo tanks detected", cryoTanks.Count));
           dataReady = true;
         }
         protected bool TrySetupProducer(PartModule pm)

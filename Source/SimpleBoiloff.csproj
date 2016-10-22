@@ -56,8 +56,8 @@
     <Compile Include="ModuleCryoPowerConsumer.cs" />
     <Compile Include="ModuleCryoPowerProducer.cs" />
     <Compile Include="ModuleSimpleBoiloff.cs" />
-    <Compile Include="PowerUtils.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SimpleBoiloffUI.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -35,9 +35,11 @@ namespace SimpleBoiloff
         [KSPField(isPersistant = true)]
         public bool BoiloffOccuring = false;
 
+        public bool HasResource { get { return HasResource; } }
 
 
         // PRIVATE
+        private bool hasResource = false;
         private double fuelAmount = 0.0;
         private double maxFuelAmount = 0.0;
         private double coolingCost = 0.0;
@@ -92,6 +94,14 @@ namespace SimpleBoiloff
 
             if (HighLogic.LoadedSceneIsFlight)
             {
+                hasResource = isResourcePresent(FuelName);
+                if (!hasResource)
+                {
+                    Events["Disable"].guiActive = false;
+                    Events["Enable"].guiActive = false;
+                    Fields["BoiloffStatus"].guiActive = false;
+                    return;
+                }
               maxFuelAmount = GetMaxResourceAmount(FuelName);
 
               boiloffRateSeconds = BoiloffRate/100.0/3600.0;
@@ -122,7 +132,7 @@ namespace SimpleBoiloff
 
         public void Update()
         {
-          if (HighLogic.LoadedSceneIsFlight)
+          if (HighLogic.LoadedSceneIsFlight && hasResource)
           {
             // Show the insulation status field if there is a cooling cost
             if (CoolingCost > 0f)
@@ -166,7 +176,7 @@ namespace SimpleBoiloff
         }
         protected void FixedUpdate()
         {
-            if (HighLogic.LoadedSceneIsFlight)
+            if (HighLogic.LoadedSceneIsFlight && hasResource)
             {
                 fuelAmount = GetResourceAmount(FuelName);
                 // If we have no fuel, no need to do any calculations
@@ -304,7 +314,14 @@ namespace SimpleBoiloff
             }
             return String.Format("Losing {0:F2} u/{1}", adjRate, interval);
         }
-
+        public bool isResourcePresent(string nm)
+        {
+            int id = PartResourceLibrary.Instance.GetDefinition(nm).id;
+            PartResource res = this.part.Resources.Get(id);
+            if (res == null)
+                return false;
+            return true;
+        }
         protected double GetResourceAmount(string nm)
         {
 
@@ -318,7 +335,7 @@ namespace SimpleBoiloff
             int id = PartResourceLibrary.Instance.GetDefinition(nm).id;
             
             PartResource res = this.part.Resources.Get(id);
-            Debug.Log(res);
+ 
             return res.maxAmount;
         }
 
