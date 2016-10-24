@@ -251,19 +251,15 @@ namespace SimpleBoiloff
 
         protected double GetResourceAmount(string nm)
        {
+
+ 
            PartResource res = this.part.Resources.Get(PartResourceLibrary.Instance.GetDefinition(nm).id);
-           if (res)
-               return res.amount;
-           else
-               return 0d;
+           return res.amount;
        }
         protected double GetMaxResourceAmount(string nm)
         {
             PartResource res = this.part.Resources.Get(PartResourceLibrary.Instance.GetDefinition(nm).id);
-            if (res)
-                return res.maxAmount;
-            else
-                return 0d;
+            return res.maxAmount;
         }
 
     }
