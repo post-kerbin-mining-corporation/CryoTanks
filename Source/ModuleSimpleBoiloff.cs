@@ -13,6 +13,9 @@ namespace SimpleBoiloff
         [KSPField(isPersistant = false)]
         public string FuelName;
 
+        [KSPField(isPersistant = false)]
+        public double FuelTotal;
+
         // Rate of boiling off in %/hr
         [KSPField(isPersistant = false)]
         public float BoiloffRate = 0.025f;
@@ -32,7 +35,11 @@ namespace SimpleBoiloff
         [KSPField(isPersistant = true)]
         public bool BoiloffOccuring = false;
 
+        public bool HasResource { get { return HasResource; } }
+
+
         // PRIVATE
+        private bool hasResource = false;
         private double fuelAmount = 0.0;
         private double maxFuelAmount = 0.0;
         private double coolingCost = 0.0;
@@ -72,16 +79,29 @@ namespace SimpleBoiloff
 
         public override string GetInfo()
         {
+          Debug.Log("GETINFO ");
           string msg = String.Format("Loss Rate: {0:F2}% {1}/hr", BoiloffRate, FuelName);
-          if (CoolingCost > 0.0f)
-              msg += String.Format("\nCooling Cost: {0:F2} EC/s per 1000 LH2", CoolingCost);
+            if (CoolingCost > 0.0f)
+            {
+               
+                msg += String.Format("\nCooling Cost: {0:F2} Ec/s", CoolingCost*(float)(FuelTotal/1000.0));
+            }
           return msg;
         }
 
         public void Start()
         {
+
             if (HighLogic.LoadedSceneIsFlight)
             {
+                hasResource = isResourcePresent(FuelName);
+                if (!hasResource)
+                {
+                    Events["Disable"].guiActive = false;
+                    Events["Enable"].guiActive = false;
+                    Fields["BoiloffStatus"].guiActive = false;
+                    return;
+                }
               maxFuelAmount = GetMaxResourceAmount(FuelName);
 
               boiloffRateSeconds = BoiloffRate/100.0/3600.0;
@@ -112,9 +132,8 @@ namespace SimpleBoiloff
 
         public void Update()
         {
-          if (HighLogic.LoadedSceneIsFlight)
+          if (HighLogic.LoadedSceneIsFlight && hasResource)
           {
-
             // Show the insulation status field if there is a cooling cost
             if (CoolingCost > 0f)
             {
@@ -141,10 +160,23 @@ namespace SimpleBoiloff
             }
 
           }
+          if (HighLogic.LoadedSceneIsEditor)
+          {
+              if (CoolingCost > 0f)
+              {
+                  foreach (BaseField fld in base.Fields)
+                  {
+                      if (fld.guiName == "Insulation")
+                          fld.guiActiveEditor = true;
+                  }
+                  double max = GetMaxResourceAmount(FuelName);
+                  CoolingStatus = String.Format("Cost {0:F2} Ec/s", CoolingCost * (float)(max / 1000.0));
+              }
+          }
         }
         protected void FixedUpdate()
         {
-            if (HighLogic.LoadedSceneIsFlight)
+            if (HighLogic.LoadedSceneIsFlight && hasResource)
             {
                 fuelAmount = GetResourceAmount(FuelName);
                 // If we have no fuel, no need to do any calculations
@@ -164,11 +196,7 @@ namespace SimpleBoiloff
                 // else check for available power
                 else
                 {
-                    if (CoolingEnabled)
-                    {
-                        ConsumeCharge();
-                    }
-                    else
+                    if (!CoolingEnabled)
                     {
                         BoiloffOccuring = true;
                         BoiloffStatus = FormatRate(boiloffRateSeconds * fuelAmount);
@@ -186,47 +214,85 @@ namespace SimpleBoiloff
                 }
             }
         }
-        protected void ConsumeCharge()
+        // Returns the cooling cost if the system is enabled
+        public double GetCoolingCost()
         {
-            if (TimeWarp.CurrentRate >= 10000f)
-            {
-                if (BoiloffOccuring)
-                {
-                    double Ec = GetResourceAmount("ElectricCharge");
-                    double req = part.RequestResource("ElectricCharge", Ec);
-                }
-            }
-            else
-            {
-                float clampedDeltaTime = Mathf.Clamp(TimeWarp.fixedDeltaTime, 0f, 10000f * 0.02f);
+          if (CoolingEnabled)
+          {
+            return coolingCost;
+          }
+          return 0d;
+        }
 
-                double chargeRequest = coolingCost * clampedDeltaTime;
+        public double SetBoiloffState(bool state)
+        {
+          if (CoolingEnabled && coolingCost > 0f)
+          {
+            if (state)
+            {
+              BoiloffOccuring = true;
+              BoiloffStatus = FormatRate(boiloffRateSeconds * fuelAmount);
+              CoolingStatus = "Uncooled!";
+            } else
+            {
 
-                double req = part.RequestResource("ElectricCharge", chargeRequest);
-                //Debug.Log(req.ToString() + " rec, wanted "+ chargeRequest.ToString());
-                // Fully cooled
-                double tolerance = 0.0001;
-                if (req >= chargeRequest - tolerance)
-                {
-                    BoiloffOccuring = false;
-                    BoiloffStatus = String.Format("Insulated");
-                    CoolingStatus = String.Format("Using {0:F2} Ec/s", coolingCost);
-                }
-                else
-                {
-                    BoiloffOccuring = true;
-                    BoiloffStatus = FormatRate(boiloffRateSeconds * fuelAmount);
-                    CoolingStatus = "Uncooled!";
-                }
+              BoiloffOccuring = false;
+              BoiloffStatus = String.Format("Insulated");
+              CoolingStatus = String.Format("Using {0:F2} Ec/s", coolingCost);
             }
+            return (double)coolingCost;
+        }
+        return 0d;
 
 
         }
+        public void TryConsumeCharge()
+        {
+            if (CoolingEnabled && coolingCost > 0f)
+            {
+                double chargeRequest = coolingCost * TimeWarp.fixedDeltaTime;
+                double req = part.RequestResource("ElectricCharge", chargeRequest);
+                double tolerance = 0.0001;
+                if (req >= chargeRequest - tolerance)
+                {
+                    SetBoiloffState(false);
+                } else
+                {
+                    SetBoiloffState(true);
+                }
+            }
+        }
+
+        public void ConsumeCharge()
+        {
+          if (CoolingEnabled && coolingCost > 0f)
+          {
+            double chargeRequest = coolingCost * TimeWarp.fixedDeltaTime;
+
+            double req = part.RequestResource("ElectricCharge", chargeRequest);
+            //Debug.Log(req.ToString() + " rec, wanted "+ chargeRequest.ToString());
+            // Fully cooled
+            double tolerance = 0.0001;
+            if (req >= chargeRequest - tolerance)
+            {
+                BoiloffOccuring = false;
+                BoiloffStatus = String.Format("Insulated");
+                CoolingStatus = String.Format("Using {0:F2} Ec/s", coolingCost);
+            }
+            else
+            {
+                BoiloffOccuring = true;
+                BoiloffStatus = FormatRate(boiloffRateSeconds * fuelAmount);
+                CoolingStatus = "Uncooled!";
+            }
+          }
+        }
+
+
         protected void DoBoiloff(double scale)
         {
             // 0.025/100/3600
       		double toBoil = Math.Pow(1.0-boiloffRateSeconds, TimeWarp.fixedDeltaTime)*scale;
-
       		boiled = part.RequestResource(FuelName, (1.0-toBoil) * fuelAmount,ResourceFlowMode.NO_FLOW );
         }
 
@@ -248,22 +314,29 @@ namespace SimpleBoiloff
             }
             return String.Format("Losing {0:F2} u/{1}", adjRate, interval);
         }
-
+        public bool isResourcePresent(string nm)
+        {
+            int id = PartResourceLibrary.Instance.GetDefinition(nm).id;
+            PartResource res = this.part.Resources.Get(id);
+            if (res == null)
+                return false;
+            return true;
+        }
         protected double GetResourceAmount(string nm)
-       {
-           PartResource res = this.part.Resources.Get(PartResourceLibrary.Instance.GetDefinition(nm).id);
-           if (res)
-               return res.amount;
-           else
-               return 0d;
-       }
+        {
+
+
+            PartResource res = this.part.Resources.Get(PartResourceLibrary.Instance.GetDefinition(nm).id);
+            return res.amount;
+        }
         protected double GetMaxResourceAmount(string nm)
         {
-            PartResource res = this.part.Resources.Get(PartResourceLibrary.Instance.GetDefinition(nm).id);
-            if (res)
-                return res.maxAmount;
-            else
-                return 0d;
+            
+            int id = PartResourceLibrary.Instance.GetDefinition(nm).id;
+            
+            PartResource res = this.part.Resources.Get(id);
+ 
+            return res.maxAmount;
         }
 
     }
