@@ -83,7 +83,7 @@ namespace SimpleBoiloff
           string msg = String.Format("Loss Rate: {0:F2}% {1}/hr", BoiloffRate, FuelName);
             if (CoolingCost > 0.0f)
             {
-               
+
                 msg += String.Format("\nCooling Cost: {0:F2} Ec/s", CoolingCost*(float)(FuelTotal/1000.0));
             }
           return msg;
@@ -162,7 +162,7 @@ namespace SimpleBoiloff
           }
           if (HighLogic.LoadedSceneIsEditor)
           {
-              if (CoolingCost > 0f)
+              if (CoolingCost > 0f && hasResource)
               {
                   foreach (BaseField fld in base.Fields)
                   {
@@ -172,7 +172,9 @@ namespace SimpleBoiloff
                   double max = GetMaxResourceAmount(FuelName);
                   CoolingStatus = String.Format("Cost {0:F2} Ec/s", CoolingCost * (float)(max / 1000.0));
               }
+              hasResource = isResourcePresent(FuelName);
           }
+
         }
         protected void FixedUpdate()
         {
@@ -331,11 +333,11 @@ namespace SimpleBoiloff
         }
         protected double GetMaxResourceAmount(string nm)
         {
-            
+
             int id = PartResourceLibrary.Instance.GetDefinition(nm).id;
-            
+
             PartResource res = this.part.Resources.Get(id);
- 
+
             return res.maxAmount;
         }
 
