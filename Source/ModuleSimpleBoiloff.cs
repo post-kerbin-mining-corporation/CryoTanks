@@ -162,6 +162,7 @@ namespace SimpleBoiloff
           }
           if (HighLogic.LoadedSceneIsEditor)
           {
+              hasResource = isResourcePresent(FuelName);
               if (CoolingCost > 0f && hasResource)
               {
                   foreach (BaseField fld in base.Fields)
@@ -171,8 +172,13 @@ namespace SimpleBoiloff
                   }
                   double max = GetMaxResourceAmount(FuelName);
                   CoolingStatus = String.Format("Cost {0:F2} Ec/s", CoolingCost * (float)(max / 1000.0));
-              }
-              hasResource = isResourcePresent(FuelName);
+              } 
+              if (CoolingCost > 0f && !hasResource)
+                  foreach (BaseField fld in base.Fields)
+                  {
+                      if (fld.guiName == "Insulation")
+                          fld.guiActiveEditor = false;
+                  }
           }
 
         }
