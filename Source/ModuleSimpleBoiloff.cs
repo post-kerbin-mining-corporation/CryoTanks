@@ -84,7 +84,7 @@ namespace SimpleBoiloff
             if (CoolingCost > 0.0f)
             {
 
-                msg += String.Format("\nCooling Cost: {0:F2} Ec/s", CoolingCost*(float)(FuelTotal/1000.0));
+                msg += String.Format("\nCooling Cost: {0:F2} Ec/s per 1000 {1}", CoolingCost, FuelName);
             }
           return msg;
         }
