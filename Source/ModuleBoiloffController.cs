@@ -15,7 +15,7 @@ namespace SimpleBoiloff
         public List<ModuleCryoPowerConsumer> powerConsumers = new List<ModuleCryoPowerConsumer>();
         public List<ModuleCryoPowerProducer> powerProducers = new List<ModuleCryoPowerProducer>();
 
-
+        bool vesselLoaded = false;
         bool analyticMode = false;
         bool dataReady = false;
         int partCount = -1;
@@ -25,8 +25,8 @@ namespace SimpleBoiloff
         protected override void  OnStart()
         {
  	        base.OnStart();
-            partCount = vessel.parts.Count;
-
+            
+            
             GetVesselElectricalData();
         }
 
@@ -35,6 +35,18 @@ namespace SimpleBoiloff
         {
           if (HighLogic.LoadedSceneIsFlight && dataReady)
           {
+             // Debug.Log(String.Format("CryoTanks: Vessel {0}, loaded state is {1}",  vessel.name, vessel.loaded.ToString()));
+              if (!vesselLoaded && FlightGlobals.ActiveVessel == vessel)
+              {
+                  Debug.Log("Vessel changed state from unfocused to focused");
+                  GetVesselElectricalData();
+                  vesselLoaded = true;
+              }
+              if (vesselLoaded && FlightGlobals.ActiveVessel != vessel)
+              {
+                  vesselLoaded = false;
+              }
+             
             if (TimeWarp.CurrentRate < timeWarpLimit)
             {
               analyticMode = false;
@@ -121,7 +133,8 @@ namespace SimpleBoiloff
         protected void GetVesselElectricalData()
         {
           cryoTanks.Clear();
-           powerProducers.Clear();
+          powerProducers.Clear();
+          partCount = vessel.parts.Count;
           for (int i = partCount - 1; i >= 0; --i)
           {
               Part part = vessel.Parts[i];
@@ -142,7 +155,8 @@ namespace SimpleBoiloff
                     TrySetupConsumer(m);
               }
             }
-          //Debug.Log(String.Format("CryoTanks: {0} cryo tanks detected", cryoTanks.Count));
+          Debug.Log(String.Format("CryoTanks: {0} cryo tanks detected on {1}, loaded state is {2}", cryoTanks.Count, vessel.name, vessel.loaded.ToString()));
+          
           dataReady = true;
         }
         protected bool TrySetupProducer(PartModule pm)
