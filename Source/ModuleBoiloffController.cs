@@ -25,8 +25,7 @@ namespace SimpleBoiloff
         protected override void  OnStart()
         {
  	        base.OnStart();
-            
-            
+
             GetVesselElectricalData();
         }
 
@@ -46,16 +45,16 @@ namespace SimpleBoiloff
               {
                   vesselLoaded = false;
               }
-             
+
             if (TimeWarp.CurrentRate < timeWarpLimit)
             {
               analyticMode = false;
-                DoLowWarpSimulation();
+              //DoLowWarpSimulation();
 
             } else
             {
               analyticMode = true;
-              DoHighWarpSimulation();
+              //DoHighWarpSimulation();
             }
 
           }
@@ -156,7 +155,7 @@ namespace SimpleBoiloff
               }
             }
           Debug.Log(String.Format("CryoTanks: {0} cryo tanks detected on {1}, loaded state is {2}", cryoTanks.Count, vessel.name, vessel.loaded.ToString()));
-          
+
           dataReady = true;
         }
         protected bool TrySetupProducer(PartModule pm)
