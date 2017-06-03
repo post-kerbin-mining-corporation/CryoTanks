@@ -38,7 +38,8 @@ namespace SimpleBoiloff
         public bool HasResource { get { return HasResource; } }
 
         [KSPField(isPersistant = false)]
-        public double coolingCost = 0.0;
+        public double currentCoolingCost = 0.0;
+        private double coolingCost = 0.0;
 
         // PRIVATE
         private bool hasResource = false;
@@ -83,7 +84,7 @@ namespace SimpleBoiloff
         {
 
           string msg;
-            string fuelDisplayName = PartResourceLibrary.Instance.GetDefinition(FuelName).displayName
+          string fuelDisplayName = PartResourceLibrary.Instance.GetDefinition(FuelName).displayName;
             if (CoolingCost > 0.0f)
             {
                 msg =  Localizer.Format("#LOC_CryoTanks_ModuleCryoTank_PartInfoCooled", BoiloffRate.ToString("F2"), fuelDisplayName, CoolingCost.ToString("F2"), fuelDisplayName);
@@ -124,6 +125,8 @@ namespace SimpleBoiloff
                 coolingCost = maxFuelAmount/1000.0 * CoolingCost;
                 Events["Disable"].guiActive = true;
                 Events["Enable"].guiActive = true;
+                Events["Enable"].guiActiveEditor = true;
+                Events["Disable"].guiActiveEditor = true;
               }
               // Catchup
               DoCatchup();
@@ -176,7 +179,21 @@ namespace SimpleBoiloff
               if (CoolingCost > 0f && !hasResource)
 
                 Fields["CoolingStatus"].guiActive = false;
-
+              if (CoolingCost > 0f)
+              {
+                  Events["Disable"].guiActiveEditor = true;
+                  Events["Enable"].guiActiveEditor = true;
+                  if (Events["Enable"].active == CoolingEnabled || Events["Disable"].active != CoolingEnabled)
+                  {
+                      Events["Disable"].active = CoolingEnabled;
+                      Events["Enable"].active = !CoolingEnabled;
+                  }
+              }
+              else
+              {
+                  Events["Disable"].guiActiveEditor = false;
+                  Events["Enable"].guiActiveEditor = false;
+              }
           }
 
         }
@@ -190,6 +207,7 @@ namespace SimpleBoiloff
                 {
                     BoiloffStatus = Localizer.Format("#LOC_CryoTanks_ModuleCryoTank_Field_BoiloffStatus_NoFuel");
                     CoolingStatus = Localizer.Format("#LOC_CryoTanks_ModuleCryoTank_Field_CoolingStatus_NoFuel");
+                    currentCoolingCost = 0.0;
                     return;
                 }
 
@@ -198,6 +216,7 @@ namespace SimpleBoiloff
                 {
                     BoiloffOccuring = true;
                     BoiloffStatus = FormatRate(boiloffRateSeconds* fuelAmount);
+                    currentCoolingCost = 0.0;
                 }
                 // else check for available power
                 else
@@ -207,9 +226,16 @@ namespace SimpleBoiloff
                         BoiloffOccuring = true;
                         BoiloffStatus = FormatRate(boiloffRateSeconds * fuelAmount);
                         CoolingStatus = Localizer.Format("#LOC_CryoTanks_ModuleCryoTank_Field_CoolingStatus_Disabled");
+                        currentCoolingCost = 0.0;
                     }
+                    else
+                    {
+                        ConsumeCharge();
+                        currentCoolingCost = coolingCost;
+                    }
+
                   }
-                  ConsumeCharge();
+                  
                 if (BoiloffOccuring)
                 {
                     DoBoiloff(1d);
