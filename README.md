@@ -41,6 +41,7 @@ This mod adds several ZBO tanks that use electricity to halt boiloff. These are 
 * Added Russian translation from vladmir_v
 * Fixed a typo in the version file
 * Adjusted the position of the nodes for the compact variants of 3.75m tanks
+* Fixed medium 3.75m tank's Compact variant collider being correctly specified
 * Fixed low cost of 5m hydrogen tanks
 * Fixed slightly off cost of 10m hydrogen tank
 
