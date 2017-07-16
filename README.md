@@ -37,6 +37,10 @@ This mod adds several ZBO tanks that use electricity to halt boiloff. These are 
 
 ## Changelog
 
+### 0.4.6
+* Repaired normals on tanks
+* Fixed science costs of many tanks
+
 ### 0.4.5
 * Added Russian translation from vladmir_v
 * Fixed a typo in the version file
