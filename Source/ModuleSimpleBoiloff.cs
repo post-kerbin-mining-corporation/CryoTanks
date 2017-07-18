@@ -139,22 +139,21 @@ namespace SimpleBoiloff
           string fuelDisplayName;
             if (CoolingCost > 0.0f)
             {
-              msg = String.Format("Cryogenic fuels evaporate over time if uncooled\n\n Cooling: {0} Ec/s per 1000 units\n", CoolingCost.ToString("F2"));
+              msg = String.Format("#LOC_CryoTanks_ModuleCryoTank_PartInfoCooled", CoolingCost.ToString("F2"));
               foreach(BoiloffFuel fuel in fuels)
               {
                 fuelDisplayName = PartResourceLibrary.Instance.GetDefinition(fuel.fuelName).displayName;
-                msg += String.Format("\n- {0}: {1}%/hr ", fuelDisplayName, fuel.boiloffRate.ToString("F2"));
+                msg += String.Format("#LOC_CryoTanks_ModuleCryoTank_PartInfoBoiloff", fuelDisplayName, fuel.boiloffRate.ToString("F2"));
               }
 
             } else
             {
-              msg = String.Format("Cryogenic fuels evaporate over time\n");
+              msg = Localizer.Format("#LOC_CryoTanks_ModuleCryoTank_PartInfoUncooled");
               foreach(BoiloffFuel fuel in fuels)
               {
                 fuelDisplayName = PartResourceLibrary.Instance.GetDefinition(fuel.fuelName).displayName;
-                msg += String.Format("\n- {0}: {1}%/hr ",  fuelDisplayName, fuel.boiloffRate.ToString("F2"));
+                msg += String.Format("#LOC_CryoTanks_ModuleCryoTank_PartInfoBoiloff",  fuelDisplayName, fuel.boiloffRate.ToString("F2"));
               }
-              ///msg =  Localizer.Format("#LOC_CryoTanks_ModuleCryoTank_PartInfoUncooled", BoiloffRate.ToString("F2"), fuelDisplayName);
             }
           return msg;
         }
