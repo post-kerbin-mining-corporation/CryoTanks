@@ -56,7 +56,7 @@ namespace SimpleBoiloff
           public PartResource resource;
 
           bool fuelPresent = false;
-          float boiloffRateSeconds = 0d;
+          public float boiloffRateSeconds = 0f;
           int id = -1;
           Part part;
 
@@ -70,16 +70,30 @@ namespace SimpleBoiloff
           public void Initialize()
           {
               if (id == -1)
-                id = PartResourceLibrary.Instance.GetDefinition(nm).id;
+                id = PartResourceLibrary.Instance.GetDefinition(fuelName).id;
               resource = part.Resources.Get(id);
               boiloffRateSeconds = boiloffRate/100f/3600f;
               fuelPresent = true;
           }
-
+          public double FuelAmountMax()
+          {
+              if (fuelPresent)
+                  return resource.maxAmount;
+              return 0d;
+          }
+          public double FuelAmount()
+          {
+              if (fuelPresent)
+                  return resource.amount;
+              return 0d;
+          }
           public void Boiloff(double seconds)
           {
-            double toBoil = Math.Pow(1.0 - boiloffRateSeconds, seconds);
-            part.RequestResource(fuelName, (1.0 - toBoil) * resource.amount, ResourceFlowMode.NO_FLOW);
+              if (fuelPresent)
+              {
+                  double toBoil = Math.Pow(1.0 - boiloffRateSeconds, seconds);
+                  part.RequestResource(fuelName, (1.0 - toBoil) * resource.amount, ResourceFlowMode.NO_FLOW);
+              }
           }
 
 
@@ -122,23 +136,23 @@ namespace SimpleBoiloff
         {
 
           string msg;
-          string fuelDisplayName
+          string fuelDisplayName;
             if (CoolingCost > 0.0f)
             {
-              msg = String.Format("Cryogenic fuels evaporate over time if uncooled\n\n Cooling: {0} Ec/s per 1000 units\n\n", CoolingCost.ToString("F2"));
+              msg = String.Format("Cryogenic fuels evaporate over time if uncooled\n\n Cooling: {0} Ec/s per 1000 units\n", CoolingCost.ToString("F2"));
               foreach(BoiloffFuel fuel in fuels)
               {
-                fuelDisplayName = PartResourceLibrary.Instance.GetDefinition(fuels[i].fuelName).displayName;
-                msg += String.Format("\n- {0}: {1}%/hr ", fuels[i].BoiloffRate.ToString("F2"), fuelDisplayName);
+                fuelDisplayName = PartResourceLibrary.Instance.GetDefinition(fuel.fuelName).displayName;
+                msg += String.Format("\n- {0}: {1}%/hr ", fuelDisplayName, fuel.boiloffRate.ToString("F2"));
               }
 
             } else
             {
-              msg = String.Format("Cryogenic fuels evaporate over time\n\n");
+              msg = String.Format("Cryogenic fuels evaporate over time\n");
               foreach(BoiloffFuel fuel in fuels)
               {
-                fuelDisplayName = PartResourceLibrary.Instance.GetDefinition(fuels[i].fuelName).displayName;
-                msg += String.Format("\n- {0}: {1}%/hr ", fuels[i].BoiloffRate.ToString("F2"), fuelDisplayName);
+                fuelDisplayName = PartResourceLibrary.Instance.GetDefinition(fuel.fuelName).displayName;
+                msg += String.Format("\n- {0}: {1}%/hr ",  fuelDisplayName, fuel.boiloffRate.ToString("F2"));
               }
               ///msg =  Localizer.Format("#LOC_CryoTanks_ModuleCryoTank_PartInfoUncooled", BoiloffRate.ToString("F2"), fuelDisplayName);
             }
@@ -205,10 +219,10 @@ namespace SimpleBoiloff
             base.OnLoad(node);
 
             ConfigNode[] varNodes = node.GetNodes("BOILOFFCONFIG");
-            lengthConfigs = new List<BoiloffFuel>();
+            fuels = new List<BoiloffFuel>();
             for (int i=0; i < varNodes.Length; i++)
             {
-              fuels.Add(new BoiloffFuel(varNodes[i]));
+              fuels.Add(new BoiloffFuel(varNodes[i], this.part));
             }
         }
 
@@ -428,15 +442,15 @@ namespace SimpleBoiloff
         protected double GetTotalResouceAmount()
         {
             double max = 0d;
-            for (int i = 0; i < fuels.Count ; i++)
-              max += fuels[i].resource.amount;
+            for (int i = 0; i < fuels.Count; i++)
+                max += fuels[i].FuelAmount();
             return max;
         }
         protected double GetTotalMaxResouceAmount()
         {
             double max = 0d;
-            for (int i = 0; i < fuels.Count ; i++)
-              max += fuels[i].resource.maxAmount;
+            for (int i = 0; i < fuels.Count; i++)
+                max += fuels[i].FuelAmountMax();
             return max;
         }
         protected double GetTotalBoiloffRate()
