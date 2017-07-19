@@ -139,11 +139,11 @@ namespace SimpleBoiloff
           string fuelDisplayName;
             if (CoolingCost > 0.0f)
             {
-              msg = String.Format("#LOC_CryoTanks_ModuleCryoTank_PartInfoCooled", CoolingCost.ToString("F2"));
+                msg = Localizer.Format("#LOC_CryoTanks_ModuleCryoTank_PartInfoCooled", CoolingCost.ToString("F2"));
               foreach(BoiloffFuel fuel in fuels)
               {
                 fuelDisplayName = PartResourceLibrary.Instance.GetDefinition(fuel.fuelName).displayName;
-                msg += String.Format("#LOC_CryoTanks_ModuleCryoTank_PartInfoBoiloff", fuelDisplayName, fuel.boiloffRate.ToString("F2"));
+                msg += Localizer.Format("#LOC_CryoTanks_ModuleCryoTank_PartInfoBoiloff", fuelDisplayName, fuel.boiloffRate.ToString("F2"));
               }
 
             } else
@@ -152,7 +152,7 @@ namespace SimpleBoiloff
               foreach(BoiloffFuel fuel in fuels)
               {
                 fuelDisplayName = PartResourceLibrary.Instance.GetDefinition(fuel.fuelName).displayName;
-                msg += String.Format("#LOC_CryoTanks_ModuleCryoTank_PartInfoBoiloff",  fuelDisplayName, fuel.boiloffRate.ToString("F2"));
+                msg += Localizer.Format("#LOC_CryoTanks_ModuleCryoTank_PartInfoBoiloff",  fuelDisplayName, fuel.boiloffRate.ToString("F2"));
               }
             }
           return msg;
