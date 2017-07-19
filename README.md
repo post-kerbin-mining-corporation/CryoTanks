@@ -41,6 +41,7 @@ This mod adds several ZBO tanks that use electricity to halt boiloff. These are 
 * Repaired normals on tanks
 * Fixed science costs of many tanks
 * Refactored plugin to support multiple cryogenic fuels per tank
+* Updates to MFT Compatibility
 
 ### 0.4.5
 * Added Russian translation from vladmir_v
