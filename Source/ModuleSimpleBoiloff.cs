@@ -317,7 +317,7 @@ namespace SimpleBoiloff
                 if (coolingCost == 0f)
                 {
                     BoiloffOccuring = true;
-                    BoiloffStatus = FormatRate(boiloffRateSeconds* fuelAmount);
+                    BoiloffStatus = FormatRate(GetTotalBoiloffRate() * fuelAmount);
                     currentCoolingCost = 0.0;
                 }
                 // else check for available power
