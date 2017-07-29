@@ -24,6 +24,10 @@ namespace SimpleBoiloff
         [KSPField(isPersistant = false)]
         public float CoolingCost = 0.0f;
 
+        // Minimum EC to leave
+        [KSPField(isPersistant = false)]
+        public float minResToLeave = 1.0f;
+
         // Last timestamp that boiloff occurred
         [KSPField(isPersistant = true)]
         public double LastUpdateTime = 0;
@@ -137,7 +141,9 @@ namespace SimpleBoiloff
         {
           if (part.vessel.missionTime > 0.0)
           {
-              if (part.RequestResource("ElectricCharge", coolingCost * TimeWarp.fixedDeltaTime) < coolingCost * TimeWarp.fixedDeltaTime)
+              vessel.GetConnectedResourceTotals(PartResourceLibrary.Instance.GetDefinition("ElectricCharge").id, out double currentEC, out double maxEC);
+              // no consumption here anymore, since we know, that there won't be enough EC
+              if((currentEC - minResToLeave) < (coolingCost * TimeWarp.fixedDeltaTime))
               {
                   double elapsedTime = part.vessel.missionTime - LastUpdateTime;
 
@@ -302,7 +308,16 @@ namespace SimpleBoiloff
           {
             double chargeRequest = coolingCost * TimeWarp.fixedDeltaTime;
 
-            double req = part.RequestResource("ElectricCharge", chargeRequest);
+            
+            vessel.GetConnectedResourceTotals(PartResourceLibrary.Instance.GetDefinition("ElectricCharge").id, out double currentEC, out double maxEC);
+
+            // only use EC if there is more then minResToLeave left
+            double req = 0;
+            if (currentEC > chargeRequest + minResToLeave)
+            {
+                req = part.RequestResource("ElectricCharge", chargeRequest);
+            }
+            
             //Debug.Log(req.ToString() + " rec, wanted "+ chargeRequest.ToString());
             // Fully cooled
             double tolerance = 0.0001;
