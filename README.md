@@ -37,6 +37,9 @@ This mod adds several ZBO tanks that use electricity to halt boiloff. These are 
 
 ## Changelog
 
+### 0.4.7
+* Fixed an issue where parts with '_' in their name would not be patched properly
+
 ### 0.4.6
 * All tanks can now be cooled. Lifting tanks cast ~10% more to cool and have cooling disabled by default
 * Repaired normals on tanks
