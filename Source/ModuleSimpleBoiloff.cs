@@ -163,7 +163,7 @@ namespace SimpleBoiloff
         }
 
 
-        public void Start()
+        public override void OnStart(StartState state)
         {
             Fields["BoiloffStatus"].guiName = Localizer.Format("#LOC_CryoTanks_ModuleCryoTank_Field_BoiloffStatus");
             Fields["CoolingStatus"].guiName = Localizer.Format("#LOC_CryoTanks_ModuleCryoTank_Field_CoolingStatus");
@@ -179,10 +179,17 @@ namespace SimpleBoiloff
             {
               if (fuels == null || fuels.Count == 0)
               {
-                  ConfigNode node = GameDatabase.Instance.GetConfigs("PART").
-                      Single(c => part.partInfo.name == c.name).config.
-                      GetNodes("MODULE").Single(n => n.GetValue("name") == moduleName);
-                  OnLoad(node);
+                  Debug.Log(part.partInfo.name);
+                  ConfigNode cfg;
+                  foreach (UrlDir.UrlConfig pNode in GameDatabase.Instance.GetConfigs("PART"))
+                  {
+                      if (pNode.name.Replace("_", ".") == part.partInfo.name)
+                      {
+                          cfg = pNode.config;
+                          ConfigNode node = cfg.GetNodes("MODULE").Single(n => n.GetValue("name") == moduleName);
+                          OnLoad(node);
+                      }
+                  }                  
               }
             }
 
@@ -282,8 +289,8 @@ namespace SimpleBoiloff
                   CoolingStatus =  Localizer.Format("#LOC_CryoTanks_ModuleCryoTank_Field_CoolingStatus_Editor", (CoolingCost * (float)(max / 1000.0)).ToString("F2"));
               }
               if (CoolingCost > 0f && !hasResource)
-
                 Fields["CoolingStatus"].guiActive = false;
+
               if (CoolingCost > 0f)
               {
                   Events["Disable"].guiActiveEditor = true;
