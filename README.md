@@ -37,6 +37,9 @@ This mod adds several ZBO tanks that use electricity to halt boiloff. These are 
 
 ## Changelog
 
+### 0.4.8
+* Cryo Tanks no longer suck up all EC 
+
 ### 0.4.7
 * Fixed an issue where parts with '_' in their name would not be patched properly
 
