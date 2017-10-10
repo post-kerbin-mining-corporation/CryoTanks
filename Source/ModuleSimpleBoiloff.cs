@@ -244,7 +244,9 @@ namespace SimpleBoiloff
         {
           if (part.vessel.missionTime > 0.0)
           {
-              vessel.GetConnectedResourceTotals(PartResourceLibrary.Instance.GetDefinition("ElectricCharge").id, out double currentEC, out double maxEC);
+              double currentEC = 0d;
+              double maxAmount = 0d;
+              vessel.GetConnectedResourceTotals(PartResourceLibrary.Instance.GetDefinition("ElectricCharge").id, out currentEC, out maxAmount);
               // no consumption here anymore, since we know, that there won't be enough EC
               if((currentEC - minResToLeave) < (coolingCost * TimeWarp.fixedDeltaTime))
               {
@@ -405,8 +407,9 @@ namespace SimpleBoiloff
           {
             double chargeRequest = coolingCost * TimeWarp.fixedDeltaTime;
 
-            
-            vessel.GetConnectedResourceTotals(PartResourceLibrary.Instance.GetDefinition("ElectricCharge").id, out double currentEC, out double maxEC);
+            double currentEC = 0d;
+            double maxEC = 0d;
+            vessel.GetConnectedResourceTotals(PartResourceLibrary.Instance.GetDefinition("ElectricCharge").id, out currentEC, out maxEC);
 
             // only use EC if there is more then minResToLeave left
             double req = 0;
