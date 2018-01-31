@@ -37,6 +37,9 @@ This mod adds several ZBO tanks that use electricity to halt boiloff. These are 
 
 ## Changelog
 
+### 0.4.10
+* Fixed attach node of 3.75m compact tank variants
+
 ### 0.4.9
 * Deconflicted a WBI fuel switcher
 
