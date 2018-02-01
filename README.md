@@ -17,7 +17,7 @@ This mod contains patches that enables fuel switching on most parts, stock and m
 
 The mod contains a plugin that causes LiquidHydrogen to evaporate from improperly cooled tanks. The boiloff rate is quite low so there is only a need to deal with it if you are storing fuel on orbit or doing long interplanetary transfers.
 
-** Disabling Boiloff**
+### Disabling Boiloff
 
 Either remove the `SimpleBoiloff.dll` file from `GameData/CryoTanks/Plugins/` or remove the following code block from `GameData/CryoTanks/Patches/CryoTanksFuelSwitcher.cfg`:
 ```
@@ -34,11 +34,11 @@ MODULE
 
 This mod adds several ZBO tanks that use electricity to halt boiloff. These are provided in 1.25m to 5m size classes as well as several radial mount models.
 
-
 ## Changelog
 
 ### 0.4.10
 * Fixed attach node of 3.75m compact tank variants
+* Fixed ZBO tank capacities
 
 ### 0.4.9
 * Deconflicted a WBI fuel switcher
