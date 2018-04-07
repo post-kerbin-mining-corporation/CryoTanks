@@ -36,9 +36,16 @@ This mod adds several ZBO tanks that use electricity to halt boiloff. These are 
 
 ## Changelog
 
-### 0.4.10
-* Fixed attach node of 3.75m compact tank variants
-* Fixed ZBO tank capacities
+### 0.5.0
+* KSP 1.4.2
+* Redid all tank textures
+* 3 new tank models
+ * Short 3.75m
+ * Short 2.5m
+ * Short 5m
+* Fixed attach nodes of 3.75m compact tank variants
+* Rebalanced capacities, masses and costs of all tanks
+* Decreased cooling cost of ZBO tanks to 0.5 Ec/1000u
 
 ### 0.4.9
 * Deconflicted a WBI fuel switcher
