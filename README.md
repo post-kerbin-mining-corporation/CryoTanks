@@ -38,6 +38,7 @@ This mod adds several ZBO tanks that use electricity to halt boiloff. These are 
 
 ### 0.5.0
 * KSP 1.4.2
+* Updated MiniAVC to 1.2.0.1
 * Redid all tank textures
 * 3 new tank models
  * Short 3.75m
