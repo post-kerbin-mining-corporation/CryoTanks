@@ -39,14 +39,15 @@ This mod adds several ZBO tanks that use electricity to halt boiloff. These are 
 ### 0.5.0
 * KSP 1.4.2
 * Updated MiniAVC to 1.2.0.1
-* Redid all tank textures
+* Redid all tank textures, particularly foils
 * 3 new tank models
- * Short 3.75m
- * Short 2.5m
- * Short 5m
+ * Short 2.5m (standard, compact variants)
+ * Short 3.75m (standard, compact, bare variants)
+ * Short 5m (standard, compact, bare variants)
 * Fixed attach nodes of 3.75m compact tank variants
 * Rebalanced capacities, masses and costs of all tanks
-* Decreased cooling cost of ZBO tanks to 0.5 Ec/1000u
+* Decreased cooling cost of ZBO tanks to 0.05 Ec/1000u
+* Added an *optional* ability to specify a set of OUTPUT_RESOURCE blocks in a BOILOFFCONFIG. This causes boiloff to produce that resource with the specified ratio and flow mode
 
 ### 0.4.9
 * Deconflicted a WBI fuel switcher
