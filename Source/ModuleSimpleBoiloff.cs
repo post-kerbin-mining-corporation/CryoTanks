@@ -58,6 +58,7 @@ namespace SimpleBoiloff
           public float boiloffRate;
 
           public PartResource resource;
+          public List<ResourceRatio> outputs;
 
           bool fuelPresent = false;
           public float boiloffRateSeconds = 0f;
@@ -69,6 +70,15 @@ namespace SimpleBoiloff
               part = p;
               node.TryGetValue("FuelName", ref fuelName);
               node.TryGetValue("BoiloffRate", ref boiloffRate);
+
+              outputs = new List<ResourceRatio>();
+              ConfigNode[] outNodes = node.GetNodes("OUTPUT_RESOURCE");
+              for (int i = 0; i < outNodes.Length; i++)
+              {
+                  ResourceRatio p = new ResourceRatio();
+                  p.Load(outNodes[i]);
+                  outputs.Add(p);
+              }
           }
 
           public void Initialize()
@@ -96,7 +106,15 @@ namespace SimpleBoiloff
               if (fuelPresent)
               {
                   double toBoil = Math.Pow(1.0 - boiloffRateSeconds, seconds);
-                  part.RequestResource(fuelName, (1.0 - toBoil) * resource.amount, ResourceFlowMode.NO_FLOW);
+                  resource.amount = Math.Max(resource.amount - toBoil, 0d);
+
+                  if (outputs.Count > 0)
+                  {
+                    for (int i = 0; i < outputs.Count; i++)
+                    {
+                      part.RequestResource(outputs[i].ResourceName, -toBoil*outputs[i].Ratio, outputs[i].FlowMode);
+                    }
+                  }
               }
           }
 
@@ -143,13 +161,19 @@ namespace SimpleBoiloff
           string fuelDisplayName;
             if (CoolingCost > 0.0f)
             {
-                
 
-                string sub = "";
+
+              string sub = "";
               foreach(BoiloffFuel fuel in fuels)
               {
                 fuelDisplayName = PartResourceLibrary.Instance.GetDefinition(fuel.fuelName).displayName;
                 sub += Localizer.Format("#LOC_CryoTanks_ModuleCryoTank_PartInfoBoiloff", fuelDisplayName, (fuel.boiloffRate).ToString("F2"));
+                if (fuel.outputs.Count > 0)
+                {
+                  foreach (output in fuel.outputs)
+                    outputDisplayName = PartResourceLibrary.Instance.GetDefinition(output.ResourceName).displayName;
+                    sub +=Localizer.Format("#LOC_CryoTanks_ModuleCryoTank_PartInfoBoiloffOutput", outputDisplayName, (fuel.boiloffRate*output.Ratio).ToString("F2"));
+                }
               }
 
               msg = Localizer.Format("#LOC_CryoTanks_ModuleCryoTank_PartInfoCooled",sub,  CoolingCost.ToString("F2"));
@@ -161,6 +185,12 @@ namespace SimpleBoiloff
               {
                 fuelDisplayName = PartResourceLibrary.Instance.GetDefinition(fuel.fuelName).displayName;
                 msg += Localizer.Format("#LOC_CryoTanks_ModuleCryoTank_PartInfoBoiloff",  fuelDisplayName, (fuel.boiloffRate).ToString("F2"));
+                if (fuel.outputs.Count > 0)
+                {
+                  foreach (output in fuel.outputs)
+                    outputDisplayName = PartResourceLibrary.Instance.GetDefinition(output.ResourceName).displayName;
+                    msg +=Localizer.Format("#LOC_CryoTanks_ModuleCryoTank_PartInfoBoiloffOutput", outputDisplayName, (fuel.boiloffRate*output.Ratio).ToString("F2"));
+                }
               }
             }
           return msg;
@@ -193,7 +223,7 @@ namespace SimpleBoiloff
                           ConfigNode node = cfg.GetNodes("MODULE").Single(n => n.GetValue("name") == moduleName);
                           OnLoad(node);
                       }
-                  }                  
+                  }
               }
             }
 
@@ -417,7 +447,7 @@ namespace SimpleBoiloff
             {
                 req = part.RequestResource("ElectricCharge", chargeRequest);
             }
-            
+
             //Debug.Log(req.ToString() + " rec, wanted "+ chargeRequest.ToString());
             // Fully cooled
             double tolerance = 0.0001;
