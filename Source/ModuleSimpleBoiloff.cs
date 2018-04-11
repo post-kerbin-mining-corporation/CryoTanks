@@ -465,7 +465,7 @@ namespace SimpleBoiloff
                 {
                     LastUpdateTime = part.vessel.missionTime;
                 }
-                
+
             }
             if (HighLogic.LoadedSceneIsFlight && DebugMode)
             {
