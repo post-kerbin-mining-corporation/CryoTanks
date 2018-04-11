@@ -2,10 +2,10 @@
 
 A mod pack for Kerbal Space Program, specifically supporting my other mods [Kerbal Atomics](https://github.com/ChrisAdderley/KerbalAtomics) and [Cryogenic Engines](https://github.com/ChrisAdderley/CryoEngines), dealing with cryogenic fuels, their storage and their properties
 
-[Features](#features)
-[Config Documentation](#config-documentation)
-[Contributing](#contributing)
-[Changelogs](#Changelog)
+* [Features](#features)
+* [Config Documentation](#config-documentation)
+* [Contributing](#contributing)
+* [Changelog](#changelog)
 
 ## Features
 
