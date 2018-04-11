@@ -9,13 +9,6 @@ namespace SimpleBoiloff
 {
     public class ModuleCryoTank: PartModule
     {
-        // Name of the fuel to boil off
-        [KSPField(isPersistant = false)]
-        public string FuelName;
-
-        // Rate of boiling off in %/hr
-        [KSPField(isPersistant = false)]
-        public float BoiloffRate = 0.025f;
 
         // Cost to cool off u/s per 1000 u
         [KSPField(isPersistant = false)]
@@ -36,19 +29,45 @@ namespace SimpleBoiloff
         [KSPField(isPersistant = true)]
         public bool BoiloffOccuring = false;
 
-        public bool HasResource { get { return HasResource; } }
+        // Special cooling parameters
+        [KSPField(isPersistant = false)]
+        public bool LongwaveFluxAffectsBoiloff = false;
+
+        [KSPField(isPersistant = false)]
+        public bool ShortwaveFluxAffectsBoiloff = false;
+
+        // Percent of insolation reflected
+        [KSPField(isPersistant = false)]
+        public float Albedo = 0.5f;
+
+        [KSPField(isPersistant = false)]
+        public float ShortwaveFluxBaseline = 0.7047f;
+
+        [KSPField(isPersistant = false)]
+        public float LongwaveFluxBaseline = 0.1231f;
+
+        [KSPField(isPersistant = false)]
+        public double MinimumBoiloffScale = 0.1f;
+
+        [KSPField(isPersistant = false)]
+        public double MaximumBoiloffScale = 5f;
 
         [KSPField(isPersistant = false)]
         public double currentCoolingCost = 0.0;
-        private double coolingCost = 0.0;
+
+        public bool HasResource { get { return HasResource; } }
 
         // PRIVATE
+        private double coolingCost = 0.0;
         private List<BoiloffFuel> fuels;
         private bool hasResource = false;
         private double fuelAmount = 0.0;
         private double maxFuelAmount = 0.0;
 
         private double boiloffRateSeconds = 0.0;
+        private double solarFlux = 1.0;
+        private double planetFlux = 1.0;
+        private double fluxScale = 1.0;
 
         // Represents a fuel that boils off
         [System.Serializable]
@@ -58,6 +77,7 @@ namespace SimpleBoiloff
           public float boiloffRate;
 
           public PartResource resource;
+          public List<ResourceRatio> outputs;
 
           bool fuelPresent = false;
           public float boiloffRateSeconds = 0f;
@@ -69,6 +89,15 @@ namespace SimpleBoiloff
               part = p;
               node.TryGetValue("FuelName", ref fuelName);
               node.TryGetValue("BoiloffRate", ref boiloffRate);
+
+              outputs = new List<ResourceRatio>();
+              ConfigNode[] outNodes = node.GetNodes("OUTPUT_RESOURCE");
+              for (int i = 0; i < outNodes.Length; i++)
+              {
+                  ResourceRatio r = new ResourceRatio();
+                  r.Load(outNodes[i]);
+                  outputs.Add(r);
+              }
           }
 
           public void Initialize()
@@ -91,12 +120,20 @@ namespace SimpleBoiloff
                   return resource.amount;
               return 0d;
           }
-          public void Boiloff(double seconds)
+          public void Boiloff(double seconds, double scale)
           {
               if (fuelPresent)
               {
-                  double toBoil = Math.Pow(1.0 - boiloffRateSeconds, seconds);
-                  part.RequestResource(fuelName, (1.0 - toBoil) * resource.amount, ResourceFlowMode.NO_FLOW);
+                  double toBoil = resource.amount * (1.0 - Math.Pow(1.0 - boiloffRateSeconds, seconds)) * scale;
+                  resource.amount = Math.Max(resource.amount - toBoil, 0d);
+
+                  if (outputs.Count > 0)
+                  {
+                    for (int i = 0; i < outputs.Count; i++)
+                    {
+                      part.RequestResource(outputs[i].ResourceName, -toBoil*outputs[i].Ratio, outputs[i].FlowMode);
+                    }
+                  }
               }
           }
 
@@ -122,6 +159,26 @@ namespace SimpleBoiloff
             CoolingEnabled = false;
         }
 
+        // DEBUG FIELDS
+
+        [KSPField(isPersistant = true)]
+        public bool DebugMode = false;
+
+        [KSPField(isPersistant = false, guiActive = false, guiName = "Albedo")]
+        public string D_Albedo = "N/A";
+
+        [KSPField(isPersistant = false, guiActive = false, guiName = "Emissivity")]
+        public string D_Emiss = "N/A";
+
+        [KSPField(isPersistant = false, guiActive = false, guiName = "SW_In(kW)")]
+        public string D_InSolar = "N/A";
+
+        [KSPField(isPersistant = false, guiActive = false, guiName = "LW_In(kW)")]
+        public string D_InPlanet = "N/A";
+
+        [KSPField(isPersistant = false, guiActive = false, guiName = "NetRad_In(kW)")]
+        public string D_NetRad = "N/A";
+
         // ACTIONS
         [KSPAction("Enable Cooling")]
         public void EnableAction(KSPActionParam param) { Enable(); }
@@ -143,13 +200,19 @@ namespace SimpleBoiloff
           string fuelDisplayName;
             if (CoolingCost > 0.0f)
             {
-                
-
-                string sub = "";
+              string sub = "";
               foreach(BoiloffFuel fuel in fuels)
               {
                 fuelDisplayName = PartResourceLibrary.Instance.GetDefinition(fuel.fuelName).displayName;
                 sub += Localizer.Format("#LOC_CryoTanks_ModuleCryoTank_PartInfoBoiloff", fuelDisplayName, (fuel.boiloffRate).ToString("F2"));
+                if (fuel.outputs.Count > 0)
+                {
+                  foreach (ResourceRatio output in fuel.outputs)
+                  {
+                    string outputDisplayName = PartResourceLibrary.Instance.GetDefinition(output.ResourceName).displayName;
+                    sub +=Localizer.Format("#LOC_CryoTanks_ModuleCryoTank_PartInfoBoiloffOutput", outputDisplayName, (fuel.boiloffRate*output.Ratio).ToString("F2"));
+                  }
+                }
               }
 
               msg = Localizer.Format("#LOC_CryoTanks_ModuleCryoTank_PartInfoCooled",sub,  CoolingCost.ToString("F2"));
@@ -161,6 +224,14 @@ namespace SimpleBoiloff
               {
                 fuelDisplayName = PartResourceLibrary.Instance.GetDefinition(fuel.fuelName).displayName;
                 msg += Localizer.Format("#LOC_CryoTanks_ModuleCryoTank_PartInfoBoiloff",  fuelDisplayName, (fuel.boiloffRate).ToString("F2"));
+                if (fuel.outputs.Count > 0)
+                {
+                    foreach (ResourceRatio output in fuel.outputs)
+                    {
+                        string outputDisplayName = PartResourceLibrary.Instance.GetDefinition(output.ResourceName).displayName;
+                        msg += Localizer.Format("#LOC_CryoTanks_ModuleCryoTank_PartInfoBoiloffOutput", outputDisplayName, (fuel.boiloffRate * output.Ratio).ToString("F2"));
+                    }
+                }
               }
             }
           return msg;
@@ -193,7 +264,16 @@ namespace SimpleBoiloff
                           ConfigNode node = cfg.GetNodes("MODULE").Single(n => n.GetValue("name") == moduleName);
                           OnLoad(node);
                       }
-                  }                  
+                  }
+              }
+              if (DebugMode)
+              {
+                  Fields["D_NetRad"].guiActive = true;
+                  Fields["D_InSolar"].guiActive = true;
+                  Fields["D_InPlanet"].guiActive = true;
+                  Fields["D_Albedo"].guiActive = true;
+                  Fields["D_Emiss"].guiActive = true;
+
               }
             }
 
@@ -216,6 +296,9 @@ namespace SimpleBoiloff
                     return;
                 }
                 maxFuelAmount = GetTotalMaxResouceAmount();
+                planetFlux = LongwaveFluxBaseline;
+                solarFlux = ShortwaveFluxBaseline;
+
               if (CoolingCost > 0.0)
               {
                 coolingCost = maxFuelAmount/1000.0 * CoolingCost;
@@ -252,7 +335,7 @@ namespace SimpleBoiloff
               {
                   double elapsedTime = part.vessel.missionTime - LastUpdateTime;
                   for (int i = 0; i < fuels.Count ; i++)
-                    fuels[i].Boiloff(elapsedTime);
+                    fuels[i].Boiloff(elapsedTime, 1.0);
               }
           }
         }
@@ -321,6 +404,23 @@ namespace SimpleBoiloff
         {
             if (HighLogic.LoadedSceneIsFlight && hasResource)
             {
+                if (part.ptd != null)
+                {
+                    if (LongwaveFluxAffectsBoiloff)
+                        planetFlux = part.ptd.bodyFlux;
+
+                    if (ShortwaveFluxAffectsBoiloff)
+                        solarFlux = part.ptd.sunFlux / part.emissiveConstant;
+                }
+                if (ShortwaveFluxAffectsBoiloff || LongwaveFluxAffectsBoiloff)
+                {
+                    fluxScale = Math.Max((planetFlux / LongwaveFluxBaseline + (solarFlux * Albedo) / ShortwaveFluxBaseline) / 2.0f, MinimumBoiloffScale);
+                }
+                else
+                {
+                    fluxScale = 1.0;
+                }
+
                 fuelAmount = GetTotalResouceAmount();
 
                 // If we have no fuel, no need to do any calculations
@@ -336,7 +436,7 @@ namespace SimpleBoiloff
                 if (coolingCost == 0f)
                 {
                     BoiloffOccuring = true;
-                    BoiloffStatus = FormatRate(GetTotalBoiloffRate() * fuelAmount);
+                    BoiloffStatus = FormatRate(GetTotalBoiloffRate() * fuelAmount * fluxScale);
                     currentCoolingCost = 0.0;
                 }
                 // else check for available power
@@ -345,7 +445,7 @@ namespace SimpleBoiloff
                     if (!CoolingEnabled)
                     {
                         BoiloffOccuring = true;
-                        BoiloffStatus = FormatRate(GetTotalBoiloffRate() * fuelAmount);
+                        BoiloffStatus = FormatRate(GetTotalBoiloffRate() * fuelAmount * fluxScale);
                         CoolingStatus = Localizer.Format("#LOC_CryoTanks_ModuleCryoTank_Field_CoolingStatus_Disabled");
                         currentCoolingCost = 0.0;
                     }
@@ -365,6 +465,15 @@ namespace SimpleBoiloff
                 {
                     LastUpdateTime = part.vessel.missionTime;
                 }
+
+            }
+            if (HighLogic.LoadedSceneIsFlight && DebugMode)
+            {
+                D_Albedo = String.Format("{0:F4}", Albedo);
+                D_Emiss = String.Format("{0:F4}", part.emissiveConstant);
+                D_InPlanet = String.Format("{0:F4}", planetFlux);
+                D_InSolar = String.Format("{0:F4}", solarFlux*Albedo);
+                D_NetRad = String.Format("{0:F4}", fluxScale);
             }
         }
         // Returns the cooling cost if the system is enabled
@@ -417,7 +526,7 @@ namespace SimpleBoiloff
             {
                 req = part.RequestResource("ElectricCharge", chargeRequest);
             }
-            
+
             //Debug.Log(req.ToString() + " rec, wanted "+ chargeRequest.ToString());
             // Fully cooled
             double tolerance = 0.0001;
@@ -440,7 +549,7 @@ namespace SimpleBoiloff
         protected void DoBoiloff()
         {
             for (int i = 0; i < fuels.Count ; i++)
-              fuels[i].Boiloff(TimeWarp.fixedDeltaTime);
+                fuels[i].Boiloff(TimeWarp.fixedDeltaTime, fluxScale);
         }
 
         protected string FormatRate(double rate)
