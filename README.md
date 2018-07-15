@@ -40,6 +40,14 @@ MODULE
 
 I certainly accept pull requests. Please target all such thing to the `dev` branch though!
 
+To make your life a little easier, the Visual Studio Project respects an environment variable called `KSPDEVDIR`.
+If you set its value to the path of your KSP install, the reference and build paths inside the project should be set automatically.
+If it is not set, your reference paths and the build paths have to be set manually.
+
+To set the variable, follow the instructions in this link, before starting a Visual Studio instance:
+
+https://superuser.com/a/949577
+
 ## Config Documentation
 
 ### Basic
