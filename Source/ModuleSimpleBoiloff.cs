@@ -36,7 +36,7 @@ namespace SimpleBoiloff
         [KSPField(isPersistant = false)]
         public bool ShortwaveFluxAffectsBoiloff = false;
 
-        // Percent of insulation reflected
+        // Percent of insolation reflected
         [KSPField(isPersistant = false)]
         public float Albedo = 0.5f;
 
@@ -360,7 +360,7 @@ namespace SimpleBoiloff
                 Fields["BoiloffStatus"].guiActive = false;
             }
           }
-          else if (HighLogic.LoadedSceneIsEditor)
+          if (HighLogic.LoadedSceneIsEditor)
           {
               hasResource = false;
               foreach(BoiloffFuel fuel in fuels)
@@ -378,10 +378,14 @@ namespace SimpleBoiloff
                   double max = GetTotalMaxResouceAmount();
 
                   CoolingStatus =  Localizer.Format("#LOC_CryoTanks_ModuleCryoTank_Field_CoolingStatus_Editor", (CoolingCost * (float)(max / 1000.0)).ToString("F2"));
+              }
+              if (CoolingCost > 0f && !hasResource)
+                Fields["CoolingStatus"].guiActive = false;
 
+              if (CoolingCost > 0f)
+              {
                   Events["Disable"].guiActiveEditor = true;
                   Events["Enable"].guiActiveEditor = true;
-
                   if (Events["Enable"].active == CoolingEnabled || Events["Disable"].active != CoolingEnabled)
                   {
                       Events["Disable"].active = CoolingEnabled;
@@ -390,7 +394,6 @@ namespace SimpleBoiloff
               }
               else
               {
-                  Fields["CoolingStatus"].guiActive = false;
                   Events["Disable"].guiActiveEditor = false;
                   Events["Enable"].guiActiveEditor = false;
               }
