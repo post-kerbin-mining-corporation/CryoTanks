@@ -36,7 +36,7 @@ namespace SimpleBoiloff
         [KSPField(isPersistant = false)]
         public bool ShortwaveFluxAffectsBoiloff = false;
 
-        // Percent of insulation reflected
+        // Percent of insolation reflected
         [KSPField(isPersistant = false)]
         public float Albedo = 0.5f;
 
