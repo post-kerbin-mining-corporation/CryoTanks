@@ -117,6 +117,10 @@ Finally, the `MaximumBoiloffScale` and `MinimumBoiloffScale` fields can be confi
 
 ## Changelog
 
+### 1.0.2
+* KSP 1.5.1
+* Updated MiniAVC to 1.2.0.6
+
 ### 1.0.1
 * KSP 1.4.5
 * Adjusted switcher patch that was erronously running
