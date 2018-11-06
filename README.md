@@ -117,6 +117,10 @@ Finally, the `MaximumBoiloffScale` and `MinimumBoiloffScale` fields can be confi
 
 ## Changelog
 
+### 1.0.4
+* Fixed a small bracket
+* Adjusted MFT patch so that the boiloff module is still used (when RO is not installed)
+
 ### 1.0.3
 * Removed MiniAVC from distribution
 
