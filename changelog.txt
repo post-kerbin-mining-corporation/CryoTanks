@@ -1,0 +1,4 @@
+v1.1.0
+------
+- Standalone release, license change for non-art assets (MIT)
+- 1.6.x compatible
