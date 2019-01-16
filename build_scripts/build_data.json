@@ -1,5 +1,5 @@
 {
-  "mod_name": "CryoTanks",
+  "mod_name": "CryoEngines",
   "dependencies":
   {
     "B9PartSwitch":
@@ -21,7 +21,7 @@
     {
       "location": "github",
       "repository": "ChrisAdderley/DynamicBatteryStorage",
-      "tag": "1.0.0"
+      "tag": "1.4.0"
     }
   },
 }
