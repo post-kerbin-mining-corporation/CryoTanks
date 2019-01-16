@@ -117,6 +117,11 @@ Finally, the `MaximumBoiloffScale` and `MinimumBoiloffScale` fields can be confi
 
 ## Changelog
 
+### 1.1.0
+* Standalone release, license change for non-art assets (MIT)
+* 1.6.x compatible
+
+
 ### 1.0.3
 * Removed MiniAVC from distribution
 
