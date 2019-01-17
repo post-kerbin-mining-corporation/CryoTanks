@@ -117,6 +117,13 @@ Finally, the `MaximumBoiloffScale` and `MinimumBoiloffScale` fields can be confi
 
 ## Changelog
 
+### 1.1.0
+* Standalone release, license change for non-art assets (MIT)
+* 1.6.x compatible
+* Fixed a small bracket
+* Adjusted MFT patch so that the boiloff module is still used (when RO is not installed)
+* Fixed procedural tanks patch to be correct now (thanks madman2003)
+
 ### 1.0.3
 * Removed MiniAVC from distribution
 
