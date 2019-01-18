@@ -40,6 +40,14 @@ MODULE
 
 I certainly accept pull requests. Please target all such thing to the `dev` branch though!
 
+## Translations
+
+For translation instructions please see [Localization Instructions](https://github.com/ChrisAdderley/CryoTanks/blob/master/GameData/CryoTanks/Localization/Localization.md)
+
+* **Spanish:** KSP forum user fitiales
+* **Russian:** KSP forum user vladmir_v
+* **German:** KSP forum user Three_Pounds
+
 ## Config Documentation
 
 ### Basic
