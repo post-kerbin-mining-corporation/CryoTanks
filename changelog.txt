@@ -1,3 +1,7 @@
+v1.1.1
+------
+- Added German translation
+
 v1.1.0
 ------
 - Standalone release, license change for non-art assets (MIT)
