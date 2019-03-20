@@ -1,0 +1,20 @@
+{
+    "spec_version": "v1.4",
+    "identifier":   "CryoTanks-Core",
+    "abstract":     ""This is the CryoTanks plugin stand-alone, for adding functionality to other mods. It contains no parts and does nothing by itself.",
+    "name":         "Cryo Tanks Core",
+    "$kref":        "#/ckan/github/ChrisAdderley/CryoTanks",
+    "$vref":        "#/ckan/ksp-avc/CryoTanks.version",
+    "license":      "MIT",
+    "resources": {
+      "homepage": "https://github.com/ChrisAdderley/CryoTanks/wiki",
+      "repository": "https://github.com/ChrisAdderley/CryoTanks"
+    },
+    "supports": [
+        { "name": "CryoTanks" }
+    ],
+    "install" : [
+        { "file"       : "GameData/CryoTanks/Plugins/SimpleBoiloff.dll",
+          "install_to" : "GameData/CryoTanks/Plugins" }
+    ]
+}
