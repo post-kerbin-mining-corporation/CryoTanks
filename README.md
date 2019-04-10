@@ -47,6 +47,7 @@ For translation instructions please see [Localization Instructions](https://gith
 * **Spanish:** KSP forum user fitiales
 * **Russian:** KSP forum user vladmir_v
 * **German:** KSP forum user Three_Pounds
+* **French:** KSP forum user Aodh4n
 
 ## Config Documentation
 
@@ -122,67 +123,3 @@ Setting `ShortwaveFluxAffectsBoiloff` will cause emission from the sun to affect
 The `DebugMode` flag can also be set in order to observe solar input and planetary input as UI fields ingame.
 
 Finally, the `MaximumBoiloffScale` and `MinimumBoiloffScale` fields can be configured to cap the modifier to boiloff from these modifications.
-
-## Changelog
-
-### 1.1.0
-* Standalone release, license change for non-art assets (MIT)
-* 1.6.x compatible
-* Fixed a small bracket
-* Adjusted MFT patch so that the boiloff module is still used (when RO is not installed)
-* Fixed procedural tanks patch to be correct now (thanks madman2003)
-
-### 1.0.3
-* Removed MiniAVC from distribution
-
-### 1.0.2
-* KSP 1.5.1
-* Updated MiniAVC to 1.2.0.6
-
-### 1.0.1
-* KSP 1.4.5
-* Adjusted switcher patch that was erronously running
-
-### 1.0.0
-* KSP 1.4.2
-* Updated MiniAVC to 1.2.0.1
-* Final content update
-* Fixed boiloff being disabled if a tank's fuel was disabled
-* Fixed boiloff rates being calculated incorrectly at timewarp
-* Redid all tank textures, particularly foils
-* Added 3 new tank models
- * Short 2.5m (standard, compact variants)
- * Short 3.75m (standard, compact, bare variants)
- * Short 5m (standard, compact, bare variants)
-* Fixed attach nodes of 3.75m compact tank variants
-* Rebalanced capacities, masses and costs of all tanks
-* Decreased cooling cost of ZBO tanks to 0.05 Ec/1000u
-* Added an *optional* ability to specify a set of OUTPUT_RESOURCE blocks in a BOILOFFCONFIG. This causes boiloff to produce that resource with the specified ratio and flow mode. See Config Documentation section
-* Added the *optional* ability to specify boiloff as dependent on solar/planetary radiation input. See Config Documentation section
-
-### 0.4.9
-* Deconflicted a WBI fuel switcher
-
-### 0.4.8
-* Cryo Tanks no longer suck up all EC
-
-### 0.4.7
-* Fixed an issue where parts with '_' in their name would not be patched properly
-
-### 0.4.6
-* All tanks can now be cooled. Lifting tanks cast ~10% more to cool and have cooling disabled by default
-* Repaired normals on tanks
-* Fixed science costs of many tanks
-* Refactored plugin to support multiple cryogenic fuels per tank
-* Updates to MFT Compatibility
-
-### 0.4.5
-* Added Russian translation from vladmir_v
-* Fixed a typo in the version file
-* Adjusted the position of the nodes for the compact variants of 3.75m tanks
-* Fixed medium 3.75m tank's Compact variant collider being correctly specified
-* Fixed low cost of 5m hydrogen tanks
-* Fixed slightly off cost of 10m hydrogen tank
-
-### Previous
-* Not tracked in this readme
