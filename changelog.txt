@@ -3,6 +3,7 @@ v1.1.2
 - 1.7.x compatible
 - Added French translation (thanks Aodh4n)
 - Updated ModuleManger to 4.0.2
+- Updated DynamicBatteryStorage to 1.4.1
 
 v1.1.1
 ------
