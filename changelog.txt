@@ -1,3 +1,12 @@
+v1.1.2
+------
+- 1.7.x compatible
+- Added French translation (thanks Aodh4n)
+- Updated ModuleManger to 4.0.2
+- Updated DynamicBatteryStorage to 1.4.1
+- Updated B9PartSwitch to 2.7.0
+- Fixed description of variants for compact 5m tank (thanks HSJasperism)
+
 v1.1.1
 ------
 - Added German translation
