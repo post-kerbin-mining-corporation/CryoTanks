@@ -1,3 +1,8 @@
+v1.2.1
+------
+- Updated DynamicBatteryStorage to 2.0.3
+- Moved each ZBO tank to be one tech node above corresponding regular tank (Wyzard256's suggestion)
+
 v1.2.0
 ------
 - Updated B9PartSwitch to 2.8.1
