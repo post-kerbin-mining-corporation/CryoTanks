@@ -1,3 +1,9 @@
+v1.2.2
+------
+- Updated B9PartSwitch to 2.9.0
+- Updated DynamicBatteryStorage to 2.0.4
+- Made use of B9PartSwitch 2.9.0 features in several parts (UI colours, tooltips)
+
 v1.2.1
 ------
 - Updated DynamicBatteryStorage to 2.0.3
