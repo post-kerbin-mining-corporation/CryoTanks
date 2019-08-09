@@ -36,18 +36,11 @@ MODULE
   ... stuff
 }
 ```
-## Contributing
+### Methalox Fuel Type
 
-I certainly accept pull requests. Please target all such thing to the `dev` branch though!
+A hidden feature of this mod is support for Methane/Oxidizer fuels. This adds LqdMethane and LqdMethane/Oxidizer fuel tanks to all the tanks affected by the mod. LqdMethane is less cryogenic and boils off slower, and additionally takes up less volume. Additionally, ISRU options are added to the appropriate parts. 
 
-## Translations
-
-For translation instructions please see [Localization Instructions](https://github.com/ChrisAdderley/CryoTanks/blob/master/GameData/CryoTanks/Localization/Localization.md)
-
-* **Spanish:** KSP forum user fitiales
-* **Russian:** KSP forum user vladmir_v, Sooll3
-* **German:** KSP forum user Three_Pounds
-* **French:** KSP forum user Aodh4n
+This feature is activated by declaring a ModuleManager patch with `:FOR[CryoTanksMethalox]` anywhere in your installation, or creating such a folder in your GameData directory. Currently, the only mod that uses this is the `NearFutureLaunchVehiclesMethalox` optional patch.
 
 ## Config Documentation
 
@@ -123,3 +116,18 @@ Setting `ShortwaveFluxAffectsBoiloff` will cause emission from the sun to affect
 The `DebugMode` flag can also be set in order to observe solar input and planetary input as UI fields ingame.
 
 Finally, the `MaximumBoiloffScale` and `MinimumBoiloffScale` fields can be configured to cap the modifier to boiloff from these modifications.
+
+
+## Contributing
+
+I certainly accept pull requests. Please target all such thing to the `dev` branch though!
+
+## Translations
+
+For translation instructions please see [Localization Instructions](https://github.com/ChrisAdderley/CryoTanks/blob/master/GameData/CryoTanks/Localization/Localization.md)
+
+* **Spanish:** KSP forum user fitiales
+* **Russian:** KSP forum user vladmir_v, Sooll3
+* **German:** KSP forum user Three_Pounds
+* **French:** KSP forum user Aodh4n
+* **Chinese:** Github user 6DYZBX

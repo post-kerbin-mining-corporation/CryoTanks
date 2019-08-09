@@ -1,3 +1,9 @@
+v1.2.3
+------
+- Updated DynamicBatteryStorage to 2.0.5
+- Added Chinese translation (6DYZBX)
+- Added LCH4 ISRU support (enabled with the same conditions as LCH4 tankage)
+
 v1.2.2
 ------
 - Updated B9PartSwitch to 2.9.0
