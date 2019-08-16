@@ -234,7 +234,7 @@ namespace SimpleBoiloff
             foreach (ResourceRatio output in fuel.outputs)
             {
               string outputDisplayName = PartResourceLibrary.Instance.GetDefinition(output.ResourceName).displayName;
-              sub + = Localizer.Format("#LOC_CryoTanks_ModuleCryoTank_PartInfoBoiloffOutput", outputDisplayName, (fuel.boiloffRate*output.Ratio).ToString("F2"));
+              sub += Localizer.Format("#LOC_CryoTanks_ModuleCryoTank_PartInfoBoiloffOutput", outputDisplayName, (fuel.boiloffRate*output.Ratio).ToString("F2"));
             }
           }
         }
@@ -332,7 +332,7 @@ namespace SimpleBoiloff
         {
           if (pNode.name.Replace("_", ".") == part.partInfo.name)
           {
-            List<ConfigNode> cryoNodes = pNode.GetNodes("MODULE").FindAll(n => n.GetValue("name") == moduleName);
+            List<ConfigNode> cryoNodes = pNode.config.GetNodes("MODULE").ToList().FindAll(n => n.GetValue("name") == moduleName);
             if (cryoNodes.Count > 1)
             {
               try
@@ -395,10 +395,10 @@ namespace SimpleBoiloff
         {
           Fields["CoolingStatus"].guiActive = true;
           if (Events["Enable"].active == CoolingEnabled || Events["Disable"].active != CoolingEnabled)
-            {
-                Events["Disable"].active = CoolingEnabled;
-                Events["Enable"].active = !CoolingEnabled;
-           }
+          {
+            Events["Disable"].active = CoolingEnabled;
+            Events["Enable"].active = !CoolingEnabled;
+          }
         }
         if (fuelAmount == 0.0)
         {
@@ -502,7 +502,7 @@ namespace SimpleBoiloff
       }
       if (HighLogic.LoadedSceneIsEditor && hasResource)
       {
-        currentCoolingCost = GetTotalCoolingCost()*GetMaxFuelAmt()/1000d;
+        currentCoolingCost = GetTotalCoolingCost()*GetTotalMaxResouceAmount()/1000d;
       }
     }
 
@@ -677,10 +677,10 @@ namespace SimpleBoiloff
     /// <return>Cooling cost, per 1000 units</return>
     protected float GetTotalCoolingCost()
     {
-      float total = CoolingCost
+      float total = CoolingCost;
       for (int i = 0; i < fuels.Count ; i++)
         total += fuels[i].FuelCoolingCost();
-      float total;
+      return total;
     }
 
     /// <summary>
@@ -692,7 +692,8 @@ namespace SimpleBoiloff
       for (int i = 0; i < fuels.Count ; i++)
         if (fuels[i].FuelCoolingCost() > 0.0f)
           return true;
-      if CoolingCost > 0.0f;
+
+      if (CoolingCost > 0.0f)
         return true;
       return false;
     }
