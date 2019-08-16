@@ -95,7 +95,7 @@ namespace SimpleBoiloff
       public List<ResourceRatio> outputs;
       public float boiloffRateSeconds = 0f;
 
-      bool fuelPresent = false;
+      public bool fuelPresent = false;
       int id = -1;
       Part part;
 
@@ -118,8 +118,8 @@ namespace SimpleBoiloff
 
       public void Initialize()
       {
-        if (id == -1)
-          id = PartResourceLibrary.Instance.GetDefinition(fuelName).id;
+        //if (id == -1)
+         id = PartResourceLibrary.Instance.GetDefinition(fuelName).id;
         resource = part.Resources.Get(id);
         boiloffRateSeconds = boiloffRate/100f/3600f;
         fuelPresent = true;
@@ -141,6 +141,7 @@ namespace SimpleBoiloff
 
       public float FuelCoolingCost()
       {
+      
         if (fuelPresent)
           return coolingCost;
         return 0f;
@@ -295,6 +296,10 @@ namespace SimpleBoiloff
           {
             hasResource = true;
             fuel.Initialize();
+          } 
+          else
+          {
+            fuel.fuelPresent = false;
           }
         }
         if (!hasResource)
@@ -415,13 +420,19 @@ namespace SimpleBoiloff
             hasResource = true;
             fuel.Initialize();
           }
+          else
+          {
+            fuel.fuelPresent = false;
+          }
         }
+
         if (IsCoolable() && hasResource)
         {
           Fields["CoolingStatus"].guiActive = true;
+          Fields["CoolingStatus"].guiActiveEditor = true;
 
           double max = GetTotalMaxResouceAmount();
-
+      
           CoolingStatus =  Localizer.Format("#LOC_CryoTanks_ModuleCryoTank_Field_CoolingStatus_Editor", (GetTotalCoolingCost() * (float)(max / 1000.0)).ToString("F2"));
 
           Events["Disable"].guiActiveEditor = true;
@@ -580,7 +591,7 @@ namespace SimpleBoiloff
         {
           BoiloffOccuring = false;
           BoiloffStatus = Localizer.Format("#LOC_CryoTanks_ModuleCryoTank_Field_BoiloffStatus_Insulated");
-          CoolingStatus = Localizer.Format("#LOC_CryoTanks_ModuleCryoTank_Field_CoolingStatus_Cooling", GetTotalCoolingCost().ToString("F2"));
+          CoolingStatus = Localizer.Format("#LOC_CryoTanks_ModuleCryoTank_Field_CoolingStatus_Cooling", finalCoolingCost.ToString("F2"));
         }
         else
         {

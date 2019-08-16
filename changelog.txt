@@ -1,11 +1,11 @@
 v1.3.0
 ------
 - Fixed LCH4/Ox tank mass ratio issue
-- Improved end-user code documentation for features that are not enabled by default
+- Improved end-user documentation for features that are not enabled by default
 - A few under the hood bug fixes/edge cases have been addressed
 - Several under the hood efficiency improvements
 - Some minor UI tweaks and fixes
-- It is now possible to specify different cooling costs per fuel type
+- It is now possible to specify different cooling costs per fuel type in configs
 
 v1.2.3
 ------
