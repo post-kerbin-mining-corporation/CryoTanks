@@ -38,7 +38,7 @@ MODULE
 ```
 ### Methalox Fuel Type
 
-A hidden feature of this mod is support for Methane/Oxidizer fuels. This adds LqdMethane and LqdMethane/Oxidizer fuel tanks to all the tanks affected by the mod. LqdMethane is less cryogenic and boils off slower, and additionally takes up less volume. Additionally, ISRU options are added to the appropriate parts. 
+A hidden feature of this mod is support for Methane/Oxidizer fuels. This adds LqdMethane and LqdMethane/Oxidizer fuel tanks to all the tanks affected by the mod. LqdMethane is less cryogenic and boils off slower, and additionally takes up less volume. Additionally, ISRU options are added to the appropriate parts.
 
 This feature is activated by declaring a ModuleManager patch with `:FOR[CryoTanksMethalox]` anywhere in your installation, or creating such a folder in your GameData directory. Currently, the only mod that uses this is the `NearFutureLaunchVehiclesMethalox` optional patch.
 
@@ -50,18 +50,64 @@ Adding boiloff support to a fuel or fuel tank is simple. Specify the following M
 MODULE
 {
   name =  ModuleCryoTank
-  // in Ec per 1000 units per second
+
+  // Should be unique among all ModuleCryoTank instances
+  moduleID = basicBoiloff
+
+  // Base power cost of cooling, in EC per 1000 units per second (a 1000 unit tank will take 80 EC/s here)
   CoolingCost = 0.08
+
+  // Whether the tank starts with cooling enabled or not
   CoolingEnabled = True
+
   BOILOFFCONFIG
   {
+    // The fuel name to boil off
     FuelName = LqdHydrogen
-    // in % per hr
+    // The rate of boiloff, in % per game hour
     BoiloffRate = 0.05
+    // The fuel cooling rate in EC per 1000 units per second. This is optional and additive to the rate in the base module
+    CoolingCost = 0.08
   }
 }
 ```
-Any number of BOILOFFCONFIGs can be used to boil off multiple fuels, though the CoolingCost is shared per tank.
+Any number of `BOILOFFCONFIG`s can be used to boil off multiple fuels. Note that the CoolingCost can appear in multiple locations. This is an additive property - all instances of it will be added together.
+In the following example, the total cost of cooling the tank will be `0.11 EC/s/1000 u` - `0.01` from the base cost, `0.05` from the `LqdHydrogen` block, and `0.02` from the `LqdOxygen` block. This allows you to have multiple fuel types with different cooling costs in a single part. Note that any of the blocks can be omitted - no need to have a base `CoolingCost` or specify any of the individual fuels.
+```
+MODULE
+{
+  name =  ModuleCryoTank
+
+  // Must be unique among all ModuleCryoTank instances, if you have more than one
+  moduleID = basicBoiloff
+
+  // Base power cost of cooling, in EC per 1000 units per second (a 1000 unit tank will take 80 EC/s here)
+  CoolingCost = 0.01
+
+  // Whether the tank starts with cooling enabled or not
+  CoolingEnabled = True
+
+  BOILOFFCONFIG
+  {
+    // The fuel name to boil off
+    FuelName = LqdHydrogen
+    // The rate of boiloff, in % per game hour
+    BoiloffRate = 0.05
+    // The fuel cooling rate in EC per 1000 units per second. This is optional and additive to the rate in the base module
+    CoolingCost = 0.08
+  }
+  BOILOFFCONFIG
+  {
+    // The fuel name to boil off
+    FuelName = LqdOxygen
+    // The rate of boiloff, in % per game hour
+    BoiloffRate = 0.05
+    // The fuel cooling rate in EC per 1000 units per second. This is optional and additive to the rate in the base module
+    CoolingCost = 0.02
+  }
+}
+```
+It should be noted that while costs can be specified per-fuel, cooling is an all or nothing thing - you cannot enable and disable cooling separately for different fuels in a single part.
 
 ### Resource Generation
 
@@ -69,17 +115,18 @@ It is possible to set things so that boiloff creates another resource instead of
 ```
 BOILOFFCONFIG
 {
-  FuelName = Hydrogen
+  FuelName = LqdHydrogen
   // in % per hr
   BoiloffRate = 0.05
   OUTPUT_RESOURCE
   {
     ResourceName = Hydrogen
-    Ratio = 1.0
+    Ratio = 0.5
     FlowMode = ALL_VESSEL
   }
 }
 ```
+In the above case, 0.05% per hour of `LqdHydrogen` will boil off, adding half the amount lost of `Hydrogen` (note the `Ratio = 0.5`).
 
 ### Heating Effects
 
