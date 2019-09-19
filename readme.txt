@@ -47,7 +47,7 @@ LOCALIZATION
 This mod includes localization support, and includes translations for
 
 - Spanish (KSP forum user fitiales)
-- Russian (KSP forum user vladmir_v)
+- Russian (KSP forum user vladmir_v, Sooll3)
 - German (KSP forum user Three_Pounds)
 - French (KSP forum user Aodh4n)
 
