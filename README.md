@@ -45,7 +45,7 @@ I certainly accept pull requests. Please target all such thing to the `dev` bran
 For translation instructions please see [Localization Instructions](https://github.com/ChrisAdderley/CryoTanks/blob/master/GameData/CryoTanks/Localization/Localization.md)
 
 * **Spanish:** KSP forum user fitiales
-* **Russian:** KSP forum user vladmir_v
+* **Russian:** KSP forum user vladmir_v, Sooll3
 * **German:** KSP forum user Three_Pounds
 * **French:** KSP forum user Aodh4n
 
