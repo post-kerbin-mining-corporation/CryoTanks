@@ -177,4 +177,4 @@ For translation instructions please see [Localization Instructions](https://gith
 * **Russian:** KSP forum user vladmir_v, Sooll3
 * **German:** KSP forum user Three_Pounds
 * **French:** KSP forum user Aodh4n
-* **Chinese:** Github user 6DYZBX
+* **Chinese:** Github user 6DYZBX, tinygrox
