@@ -1,6 +1,10 @@
+v1.4.2
+------
+- Added boiloff module to Procedural Tanks patch
+
 v1.4.1
 ------
-- KSP 1.8.x
+- KSP 1.9.x
 - Updated B9PartSwitch to 2.13.0
 - Updated DynamicBatteryStorage to 2.1.5
 - Updated ModuleManger to 4.1.3
