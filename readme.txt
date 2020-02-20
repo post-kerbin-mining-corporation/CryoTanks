@@ -1,5 +1,5 @@
 =================
-Cryo Tanks v1.4.0
+Cryo Tanks v1.4.1
 =================
 
 A mod pack for Kerbal Space Program, specifically supporting my other mods Kerbal Atomics (https://github.com/ChrisAdderley/KerbalAtomics) and Cryogenic Engines (https://github.com/ChrisAdderley/CryoEngines), dealing with cryogenic fuels, their storage and their properties.
@@ -20,10 +20,10 @@ DEPENDENCIES
 ============
 
 Required:
-- B9PartSwitch (2.12.1)
-- Community Resource Pack (1.3.0)
-- ModuleManager (4.1.0)
-- DynamicBatteryStorage (2.1.0)
+- B9PartSwitch (2.13.0)
+- Community Resource Pack (1.3.)
+- ModuleManager (4.1.3)
+- DynamicBatteryStorage (2.1.5)
 
 Optional
 - Community Tech Tree (v2.2+)
@@ -50,7 +50,7 @@ This mod includes localization support, and includes translations for
 - Russian (KSP forum user vladmir_v, Sooll3)
 - German (KSP forum user Three_Pounds)
 - French (KSP forum user Aodh4n)
-- Chinese (Github user 6DYZBX)
+- Chinese (Github user 6DYZBX and tinygrox)
 =========
 LICENSING
 =========
