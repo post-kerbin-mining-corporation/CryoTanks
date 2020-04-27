@@ -1,3 +1,11 @@
+v1.5.0
+------
+- Updated DynamicBatteryStorage to 2.1.6
+- Updated B9PartSwitch to 2.16.0
+- Fixed a typo in large ISRU under methalox mode
+- Added ability to mark a tank in config as uncoolable (CoolingAllowed = false)
+- Tuned cost of LF-only tanks with the fuel switcher to be approximately $0.8/u (previously was 0.5)
+
 v1.4.2
 ------
 - Added boiloff module to Procedural Tanks patch
