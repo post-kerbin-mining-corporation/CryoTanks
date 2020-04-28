@@ -409,6 +409,12 @@ namespace SimpleBoiloff
             Events["Enable"].active = !CoolingEnabled;
           }
         }
+        else
+        {
+          Fields["CoolingStatus"].guiActive = false;
+          Events["Disable"].active = false;
+          Events["Enable"].active = false;
+        }
 
         if (fuelAmount == 0.0)
         {
