@@ -30,6 +30,10 @@ namespace SimpleBoiloff
     [KSPField(isPersistant = true)]
     public double LastUpdateTime = 0;
 
+    // Whether active tank refrigeration is allowed
+    [KSPField(isPersistant = true)]
+    public bool CoolingAllowed = true;
+
     // Whether active tank refrigeration is occurring
     [KSPField(isPersistant = true)]
     public bool CoolingEnabled = true;
@@ -141,7 +145,7 @@ namespace SimpleBoiloff
 
       public float FuelCoolingCost()
       {
-      
+
         if (fuelPresent)
           return coolingCost;
         return 0f;
@@ -296,7 +300,7 @@ namespace SimpleBoiloff
           {
             hasResource = true;
             fuel.Initialize();
-          } 
+          }
           else
           {
             fuel.fuelPresent = false;
@@ -405,6 +409,13 @@ namespace SimpleBoiloff
             Events["Enable"].active = !CoolingEnabled;
           }
         }
+        else
+        {
+          Fields["CoolingStatus"].guiActive = false;
+          Events["Disable"].active = false;
+          Events["Enable"].active = false;
+        }
+
         if (fuelAmount == 0.0)
         {
           Fields["BoiloffStatus"].guiActive = false;
@@ -432,7 +443,7 @@ namespace SimpleBoiloff
           Fields["CoolingStatus"].guiActiveEditor = true;
 
           double max = GetTotalMaxResouceAmount();
-      
+
           CoolingStatus =  Localizer.Format("#LOC_CryoTanks_ModuleCryoTank_Field_CoolingStatus_Editor", (GetTotalCoolingCost() * (float)(max / 1000.0)).ToString("F2"));
 
           Events["Disable"].guiActiveEditor = true;
@@ -700,6 +711,9 @@ namespace SimpleBoiloff
     /// <return>True if the tank can be cooled</return>
     protected bool IsCoolable()
     {
+      if (!CoolingAllowed)
+        return false;
+
       for (int i = 0; i < fuels.Count ; i++)
         if (fuels[i].FuelCoolingCost() > 0.0f)
           return true;
