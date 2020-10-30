@@ -14,10 +14,10 @@ dependencies:  # Configure dependencies
     version: 2.17.0
     location: s3
   CommunityResourcePack:
-    version: 1.3.0
+    version: 1.34.1
     location: s3
   DynamicBatteryStorage:
-    tag: 2.1.7
+    tag: 2.1.10
     location: github
     repository: ChrisAdderley/DynamicBatteryStorage
 deploy:
