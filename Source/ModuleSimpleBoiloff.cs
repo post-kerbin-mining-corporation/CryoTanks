@@ -386,9 +386,9 @@ namespace SimpleBoiloff
         double maxAmount = 0d;
         vessel.GetConnectedResourceTotals(PartResourceLibrary.Instance.GetDefinition("ElectricCharge").id, out currentEC, out maxAmount);
         // no consumption here anymore, since we know, that there won't be enough EC
-        if((currentEC - minResToLeave) < (finalCoolingCost * TimeWarp.fixedDeltaTime))
+        if(!CoolingEnabled || (CoolingEnabled && (currentEC - minResToLeave) < (finalCoolingCost * TimeWarp.fixedDeltaTime)))
         {
-          double elapsedTime = part.vessel.missionTime - LastUpdateTime;
+          double elapsedTime = Planetarium.GetUniversalTime() - LastUpdateTime;
           for (int i = 0; i < fuels.Count ; i++)
             fuels[i].Boiloff(elapsedTime, 1.0);
         }
@@ -511,7 +511,7 @@ namespace SimpleBoiloff
         }
         if (part.vessel.missionTime > 0.0)
         {
-            LastUpdateTime = part.vessel.missionTime;
+            
         }
       }
       if (HighLogic.LoadedSceneIsFlight && DebugMode)
@@ -578,6 +578,11 @@ namespace SimpleBoiloff
         return (double)finalCoolingCost;
       }
       return 0d;
+    }
+    public override void OnSave(ConfigNode node)
+    {
+      LastUpdateTime = Planetarium.GetUniversalTime();
+      base.OnSave(node);
     }
 
     public void ConsumeCharge()
