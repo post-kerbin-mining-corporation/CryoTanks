@@ -1,3 +1,9 @@
+v1.5.4
+------
+- KSP 1.11
+- Updated DynamicBatteryStorage to 2.2.1
+- Various MFT fixes by dlrk
+
 v1.5.3
 ------
 - Updated DynamicBatteryStorage to 2.1.10
