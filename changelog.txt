@@ -1,3 +1,8 @@
+v1.5.4
+------
+- KSP 1.11
+- Updated DynamicBatteryStorage to 2.2.0
+
 v1.5.3
 ------
 - Updated DynamicBatteryStorage to 2.1.10
