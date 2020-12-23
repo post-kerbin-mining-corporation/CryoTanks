@@ -1,5 +1,5 @@
 =================
-Cryo Tanks v1.5.4
+Cryo Tanks v1.5.5
 =================
 
 A mod pack for Kerbal Space Program, specifically supporting my other mods Kerbal Atomics (https://github.com/ChrisAdderley/KerbalAtomics) and Cryogenic Engines (https://github.com/ChrisAdderley/CryoEngines), dealing with cryogenic fuels, their storage and their properties.
@@ -21,7 +21,7 @@ DEPENDENCIES
 
 Required:
 - B9PartSwitch (2.17.0)
-- Community Resource Pack (1.4.1)
+- Community Resource Pack (1.4.2)
 - ModuleManager (4.1.4)
 - DynamicBatteryStorage (2.2.0)
 
