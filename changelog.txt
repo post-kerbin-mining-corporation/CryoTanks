@@ -1,3 +1,41 @@
+v1.5.5
+------
+- Fixed a problem in the MFT patch that broke the mod
+- Updated CRP to 1.4.2
+
+v1.5.4
+------
+- KSP 1.11
+- Updated DynamicBatteryStorage to 2.2.1
+- Various MFT fixes by dlrk
+
+v1.5.3
+------
+- Updated DynamicBatteryStorage to 2.1.10
+- Updated CRP to 1.4.1
+- Fixed a bug with resource catchup
+
+v1.5.2
+------
+- Marked for KSP 1.10.x
+- Improved MFT compatibility (dlrk2)
+- Updated DynamicBatteryStorage to 2.1.7
+- Updated ModuleManager to 4.1.4
+- Updated B9PartSwitch to 2.17.0
+
+v1.5.1
+------
+- Fixed a testing flag being left on in 1.5.0
+
+v1.5.0
+------
+- Updated DynamicBatteryStorage to 2.1.6
+- Updated B9PartSwitch to 2.16.0
+- Fixed a typo in large ISRU under methalox mode
+- Added ability to mark a tank in config as uncoolable (CoolingAllowed = false)
+- Added special handling to the MH/RS+ soyuz tanks to allow them to use the switcher even though they have an engine module
+- Tuned cost of LF-only tanks with the fuel switcher to be approximately $0.8/u (previously was 0.5)
+
 v1.4.2
 ------
 - Added boiloff module to Procedural Tanks patch

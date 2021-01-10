@@ -30,6 +30,10 @@ namespace SimpleBoiloff
     [KSPField(isPersistant = true)]
     public double LastUpdateTime = 0;
 
+    // Whether active tank refrigeration is allowed
+    [KSPField(isPersistant = true)]
+    public bool CoolingAllowed = true;
+
     // Whether active tank refrigeration is occurring
     [KSPField(isPersistant = true)]
     public bool CoolingEnabled = true;
@@ -141,7 +145,7 @@ namespace SimpleBoiloff
 
       public float FuelCoolingCost()
       {
-      
+
         if (fuelPresent)
           return coolingCost;
         return 0f;
@@ -296,7 +300,7 @@ namespace SimpleBoiloff
           {
             hasResource = true;
             fuel.Initialize();
-          } 
+          }
           else
           {
             fuel.fuelPresent = false;
@@ -382,9 +386,9 @@ namespace SimpleBoiloff
         double maxAmount = 0d;
         vessel.GetConnectedResourceTotals(PartResourceLibrary.Instance.GetDefinition("ElectricCharge").id, out currentEC, out maxAmount);
         // no consumption here anymore, since we know, that there won't be enough EC
-        if((currentEC - minResToLeave) < (finalCoolingCost * TimeWarp.fixedDeltaTime))
+        if(!CoolingEnabled || (CoolingEnabled && (currentEC - minResToLeave) < (finalCoolingCost * TimeWarp.fixedDeltaTime)))
         {
-          double elapsedTime = part.vessel.missionTime - LastUpdateTime;
+          double elapsedTime = Planetarium.GetUniversalTime() - LastUpdateTime;
           for (int i = 0; i < fuels.Count ; i++)
             fuels[i].Boiloff(elapsedTime, 1.0);
         }
@@ -405,6 +409,13 @@ namespace SimpleBoiloff
             Events["Enable"].active = !CoolingEnabled;
           }
         }
+        else
+        {
+          Fields["CoolingStatus"].guiActive = false;
+          Events["Disable"].active = false;
+          Events["Enable"].active = false;
+        }
+
         if (fuelAmount == 0.0)
         {
           Fields["BoiloffStatus"].guiActive = false;
@@ -432,7 +443,7 @@ namespace SimpleBoiloff
           Fields["CoolingStatus"].guiActiveEditor = true;
 
           double max = GetTotalMaxResouceAmount();
-      
+
           CoolingStatus =  Localizer.Format("#LOC_CryoTanks_ModuleCryoTank_Field_CoolingStatus_Editor", (GetTotalCoolingCost() * (float)(max / 1000.0)).ToString("F2"));
 
           Events["Disable"].guiActiveEditor = true;
@@ -500,7 +511,7 @@ namespace SimpleBoiloff
         }
         if (part.vessel.missionTime > 0.0)
         {
-            LastUpdateTime = part.vessel.missionTime;
+            
         }
       }
       if (HighLogic.LoadedSceneIsFlight && DebugMode)
@@ -567,6 +578,11 @@ namespace SimpleBoiloff
         return (double)finalCoolingCost;
       }
       return 0d;
+    }
+    public override void OnSave(ConfigNode node)
+    {
+      LastUpdateTime = Planetarium.GetUniversalTime();
+      base.OnSave(node);
     }
 
     public void ConsumeCharge()
@@ -700,6 +716,9 @@ namespace SimpleBoiloff
     /// <return>True if the tank can be cooled</return>
     protected bool IsCoolable()
     {
+      if (!CoolingAllowed)
+        return false;
+
       for (int i = 0; i < fuels.Count ; i++)
         if (fuels[i].FuelCoolingCost() > 0.0f)
           return true;
