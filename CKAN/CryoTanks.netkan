@@ -6,6 +6,7 @@
     "$kref":        "#/ckan/github/ChrisAdderley/CryoTanks",
     "$vref":        "#/ckan/ksp-avc/CryoTanks.version",
     "license":      "restricted",
+    "author"              : "Nertea (Chris Adderley)",
     "resources": {
       "homepage": "https://github.com/ChrisAdderley/CryoTanks/wiki",
       "repository": "https://github.com/ChrisAdderley/CryoTanks"
