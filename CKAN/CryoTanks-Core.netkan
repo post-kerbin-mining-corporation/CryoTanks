@@ -5,6 +5,7 @@
     "name":         "Cryo Tanks Core",
     "$kref":        "#/ckan/github/post-kerbin-mining-corporation/CryoTanks",
     "$vref":        "#/ckan/ksp-avc/CryoTanks.version",
+    "author"              : "Nertea (Chris Adderley)",
     "license":      "MIT",
     "resources": {
       "homepage": "https://github.com/post-kerbin-mining-corporation/CryoTanks/wiki",
