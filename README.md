@@ -9,6 +9,14 @@ A mod pack for Kerbal Space Program, specifically supporting my other mods [Kerb
 
 ## Features
 
+### Fuel Types
+
+This mod adds handling for two cryogenic fuels, Liquid Hydrogen and Liquid Methane. Both fuels have advantages and disadvantages, 
+
+Liquid Hydrogen is a deeply cryogenic fuel with a lot of applications. It takes up a ton of volume so you'll need a lot of tanks, but is very light by comparison. Using this as fuel will get you the best chemical efficiencies. It is best used as an upper stage fuel. If left unattended without cooling, it will 'boil off' into space - see the **Fuel Boiloff** section below. 
+
+By contrast, Lqd Methane is less cryogenic and has a volume somewhere between that of Liquid Hydrogen and stock Liquid Fuel. It still boils off, but more slowly and costs less to cool. It has middle of the road performance characteristics. 
+
 ### Fuel Switching
 
 This mod contains patches that enables fuel switching on most parts, stock and modded, that contain LiquidFuel/Oxidizer. The parts will be able to contain the following fuel settings with correct dry mass
@@ -17,14 +25,16 @@ This mod contains patches that enables fuel switching on most parts, stock and m
 * LiquidFuel
 * Oxidizer
 * LqdHydrogen
+* LqdMethane
+* LqdMethane/Oxidizer
 
-### Hydrogen Boiloff
+### Fuel Boiloff
 
-The mod contains a plugin that causes LiquidHydrogen to evaporate from improperly cooled tanks. The boiloff rate is quite low so there is only a need to deal with it if you are storing fuel on orbit or doing long interplanetary transfers.
+The mod contains a plugin that causes fuel to evaporate from improperly cooled tanks. This applies to both Liquid Hydrogen and Liquid Methane. The boiloff rate is quite low so there is only a need to deal with it if you are storing fuel on orbit or doing long interplanetary transfers.
 
 ### Orbital Zero-boiloff (ZBO) Fuel Tanks
 
-This mod adds several ZBO tanks that use electricity to halt boiloff. These are provided in 1.25m to 5m size classes as well as several radial mount models. They have the same mass properties, but take less power to cool
+This mod adds several ZBO tanks. These are provided in 1.25m to 5m size classes as well as several radial mount models. They have the same mass properties as other tanks, but take less power to cool. Liquid Hydrogen requires more power to cool than Liquid Methane
 
 ### Disabling Boiloff
 
@@ -36,11 +46,7 @@ MODULE
   ... stuff
 }
 ```
-### Methalox Fuel Type
 
-A hidden feature of this mod is support for Methane/Oxidizer fuels. This adds LqdMethane and LqdMethane/Oxidizer fuel tanks to all the tanks affected by the mod. LqdMethane is less cryogenic and boils off slower, and additionally takes up less volume. Additionally, ISRU options are added to the appropriate parts.
-
-This feature is activated by declaring a ModuleManager patch with `:FOR[CryoTanksMethalox]` anywhere in your installation, or creating such a folder in your GameData directory. Currently, the only mod that uses this is the `NearFutureLaunchVehiclesMethalox` optional patch.
 
 ## Config Documentation
 
