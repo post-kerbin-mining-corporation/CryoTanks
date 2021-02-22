@@ -1,3 +1,11 @@
+v1.6.0
+------
+- Updated DynamicBatteryStorage to 2.2.2
+- Methalox tankage is now enabled by default
+- Adjusted localization to generalize new tanks to 'cryogenic fuels' rather than liquid hydrogen only
+- Balance tuning for methalox tankage
+- Global patch does not patch tanks with WBIOmniStorage
+
 v1.5.6
 ------
 - Fix for KSP <1.11
