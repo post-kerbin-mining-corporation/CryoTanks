@@ -3,13 +3,13 @@
     "identifier":   "CryoTanks",
     "abstract":     "A set of fuel tanks for containing Liquid Hydrogen. Also adds Liquid Hydrogen storage to most stock tanks",
     "name":         "Cryo Tanks",
-    "$kref":        "#/ckan/github/ChrisAdderley/CryoTanks",
+    "$kref":        "#/ckan/github/post-kerbin-mining-corporation/CryoTanks",
     "$vref":        "#/ckan/ksp-avc/CryoTanks.version",
     "license":      "restricted",
     "author"              : "Nertea (Chris Adderley)",
     "resources": {
-      "homepage": "https://github.com/ChrisAdderley/CryoTanks/wiki",
-      "repository": "https://github.com/ChrisAdderley/CryoTanks"
+      "homepage": "https://github.com/post-kerbin-mining-corporation/CryoTanks/wiki",
+      "repository": "https://github.com/post-kerbin-mining-corporation/CryoTanks"
     },
     "depends": [
         { "name": "CryoTanks-Core"   },
