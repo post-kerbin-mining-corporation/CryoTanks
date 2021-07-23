@@ -1,3 +1,9 @@
+v1.6.1
+------
+- Updated DynamicBatteryStorage to 2.2.4
+- Updated B9PartSwitch to 2.18.0
+- Improved the ISRU patches for LH2, LCH4, and combos thereof (yalov)
+
 v1.6.0
 ------
 - Updated DynamicBatteryStorage to 2.2.2
