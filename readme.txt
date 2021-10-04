@@ -1,5 +1,5 @@
 =================
-Cryo Tanks v1.6.1
+Cryo Tanks v1.6.2
 =================
 
 A mod pack for Kerbal Space Program, specifically supporting my other mods Kerbal Atomics (https://github.com/ChrisAdderley/KerbalAtomics) and Cryogenic Engines (https://github.com/ChrisAdderley/CryoEngines), dealing with cryogenic fuels, their storage and their properties.

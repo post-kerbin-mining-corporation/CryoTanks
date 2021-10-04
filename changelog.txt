@@ -1,3 +1,9 @@
+v1.6.2
+------
+- Refactored boiloff code
+- Catchup calculation is more robust
+- Fixed inconsistency when displaying boiloff rate (was displayed using different units when power was out vs when cooling was disabled)
+
 v1.6.1
 ------
 - Updated DynamicBatteryStorage to 2.2.4
