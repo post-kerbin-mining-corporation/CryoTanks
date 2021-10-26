@@ -249,6 +249,7 @@ namespace SimpleBoiloff
       Fields["D_NetRad"].guiActive = debug;
       Fields["D_InSolar"].guiActive = debug;
       Fields["D_InPlanet"].guiActive = debug;
+      Fields["D_InPlanet"].guiActive = debug;
       Fields["D_Albedo"].guiActive = debug;
       Fields["D_Emiss"].guiActive = debug;
 
@@ -385,7 +386,7 @@ namespace SimpleBoiloff
 
         if (IsCoolable() && HasAnyBoiloffResource)
         {
-          Fields["CoolingStatus"].guiActive = true;
+          Fields["CoolingStatus"].guiActiveEditor = true;
           Fields["CoolingStatus"].guiActiveEditor = true;
 
           double max = GetTotalMaxResouceAmount();
@@ -403,7 +404,7 @@ namespace SimpleBoiloff
         }
         else
         {
-          Fields["CoolingStatus"].guiActive = false;
+          Fields["CoolingStatus"].guiActiveEditor = false;
           Events["Disable"].guiActiveEditor = false;
           Events["Enable"].guiActiveEditor = false;
         }
@@ -554,7 +555,7 @@ namespace SimpleBoiloff
         }
 
         double tolerance = 0.0001;
-        if (consumedEC >= chargeRequest - tolerance)
+        if (consumedEC >= (chargeRequest - tolerance))
         {
           boiloff = false;
           BoiloffStatus = Localizer.Format("#LOC_CryoTanks_ModuleCryoTank_Field_BoiloffStatus_Insulated");
