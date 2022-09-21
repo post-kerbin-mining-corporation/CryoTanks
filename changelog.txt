@@ -1,3 +1,7 @@
+v1.6.5
+------
+- Fixed shader on 3.75m hydrogen tank
+
 v1.6.4
 ------
 - Bugfixes
