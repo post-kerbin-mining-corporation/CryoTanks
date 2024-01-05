@@ -15,7 +15,8 @@
         { "name": "CryoTanks-Core"   },
         { "name": "ModuleManager"         },
         { "name": "CommunityResourcePack" },
-        { "name": "DynamicBatteryStorage" }
+        { "name": "DynamicBatteryStorage" },
+        { "name": "B9PartSwitch"          }
     ],
     "supports": [
         { "name": "KerbalAtomics" },
