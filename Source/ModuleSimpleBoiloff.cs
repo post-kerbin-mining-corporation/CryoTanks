@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using UnityEngine;
 using KSP.Localization;
 
 namespace SimpleBoiloff
@@ -71,6 +69,10 @@ namespace SimpleBoiloff
     [KSPField(isPersistant = false)]
     public double MaximumBoiloffScale = 5f;
 
+    // The number of physics frames before boiloff starts
+    [KSPField(isPersistant = false)]
+    public int BoiloffFrames = 30;
+
     /// <summary>
     /// Indicates whether there are any boilable resources currently on the part
     /// </summary>
@@ -83,13 +85,12 @@ namespace SimpleBoiloff
     private double fuelAmount = 0.0;
     private double maxFuelAmount = 0.0;
 
-    private double boiloffRateSeconds = 0.0;
-
     // Thermal 
     private double solarFlux = 1.0;
     private double planetFlux = 1.0;
     private double fluxScale = 1.0;
 
+    private int currentBoiloffFrames = 0;
 
     // UI FIELDS/ BUTTONS
     // Status string
@@ -313,7 +314,6 @@ namespace SimpleBoiloff
           fuels.Add(new BoiloffFuel(varNodes[i], this.part));
         }
       }
-      Utils.Log($"Now have {fuels.Count} fuels");
     }
 
     /// <summary>
@@ -329,7 +329,7 @@ namespace SimpleBoiloff
           double elapsedTime = Planetarium.GetUniversalTime() - LastUpdateTime;
           if (elapsedTime > 0d)
           {
-            Utils.Log($"Catching up {elapsedTime} s of time on load");
+            Utils.Log($"[SimpleBoiloff] Catching up {elapsedTime} s of time on load");
 
             for (int i = 0; i < fuels.Count; i++)
             {
@@ -454,7 +454,11 @@ namespace SimpleBoiloff
 
         if (BoiloffOccuring)
         {
-          DoBoiloff();
+          currentBoiloffFrames++;
+          if (currentBoiloffFrames > BoiloffFrames)
+          {
+            DoBoiloff();
+          }
         }
         if (part.vessel.missionTime > 0.0)
         {

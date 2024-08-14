@@ -1,3 +1,14 @@
+v1.6.6
+------
+- Updated DynamicBatteryStorage to 2.3.0
+- Updated B9PartSwitch to 2.20.0
+- Updated ModuleManager to 4.2.3
+- Added some handling which sets a delay of 30 physics ticks (~1s) before boiloff kicks in to help with solar panel inconsistencies
+- Fixed shader on medium inline 3.75m hydrogen tank (again)
+- Fixed an issue where a player could disable a tank in the UI, thus disabling boiloff
+- Fixed an issue where MaximumBoiloffScale was not respected when using the advanced solar modes
+- Support VABOrganizer subcategories
+
 v1.6.5
 ------
 - Fixed shader on 3.75m hydrogen tank
