@@ -21,6 +21,10 @@
         { "name": "KerbalAtomics" },
         { "name": "CryoEngines"   }
     ],
+    "conflicts": [
+        { "name": "SimpleFuelSwitch" },
+        { "name": "InterstellarFuelSwitch"   }
+    ],
     "install": [
         {
           "find"       : "CryoTanks",
