@@ -454,12 +454,20 @@ namespace SimpleBoiloff
 
         if (BoiloffOccuring)
         {
-          currentBoiloffFrames++;
           if (currentBoiloffFrames > BoiloffFrames)
           {
             DoBoiloff();
           }
+          else
+          {
+            currentBoiloffFrames++;
+          }
         }
+        else
+        {
+          currentBoiloffFrames = 0;
+        }
+
         if (part.vessel.missionTime > 0.0)
         {
 

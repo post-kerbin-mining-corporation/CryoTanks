@@ -1,3 +1,10 @@
+v1.6.7
+------
+- Added a configurable physics frame tolerance for boiloff (30 frames default).
+ - This delays boiloff by 30 physics frames, or a little less than a second upon losing power
+ - If power is regained over those 30 frames, the timer resets
+ - This will significantly improve erroneous boiloff when dealing with flickering power sources like solar panels at high timewarp
+
 v1.6.6
 ------
 - Updated DynamicBatteryStorage to 2.3.0
